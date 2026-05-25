@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { VocabularyItem } from "@/types";
+import { mockVocabulary } from "./mock";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -9,6 +10,7 @@ export async function extractVocabulary(
   text: string,
   chapterTitle: string
 ): Promise<VocabResult[]> {
+  if (process.env.MOCK_AI === "true") return mockVocabulary;
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 2048,

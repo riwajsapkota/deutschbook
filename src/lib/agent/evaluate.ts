@@ -15,6 +15,16 @@ export async function evaluateAnswer(
   userAnswer: string,
   chapterTitle: string
 ): Promise<EvaluationResult> {
+  if (process.env.MOCK_AI === "true") {
+    const close = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+    return {
+      correct: close,
+      feedback: close
+        ? "Great job! Your answer is correct."
+        : `Not quite. The expected answer is: "${correctAnswer}". Check your grammar and word order.`,
+      corrected: close ? null : correctAnswer,
+    };
+  }
   const systemPrompt =
     exerciseType === "translate"
       ? `You are a German language teacher evaluating a translation for a B1/B2 learner. Be encouraging but precise. Check grammar, vocabulary, and word order. Minor stylistic differences are fine; grammatical errors are not.`
@@ -66,6 +76,9 @@ export async function askTeacher(
   currentSection: string,
   question: string
 ): Promise<string> {
+  if (process.env.MOCK_AI === "true") {
+    return `(Mock mode) Great question about ${chapterTitle}! In a real session, I would answer: "${question}" in detail using the theory from the current section. Enable the Anthropic API key to get real answers.`;
+  }
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 800,

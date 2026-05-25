@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { mockTheory } from "./mock";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -8,6 +9,8 @@ export async function generateTheory(
   exerciseSamples: string,
   existingTheory?: string | null
 ): Promise<{ summary: string; theory: string }> {
+  if (process.env.MOCK_AI === "true") return mockTheory;
+
   const updateInstruction = existingTheory
     ? `There is existing theory content. Update or expand it with any new nuances from the exercises, but preserve what is already good:\n\n${existingTheory.slice(0, 2000)}`
     : "There is no existing theory. Write it from scratch.";

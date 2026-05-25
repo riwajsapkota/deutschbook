@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { ExerciseItem, ExerciseType } from "@/types";
+import { mockExercises } from "./mock";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -14,6 +15,7 @@ export async function convertExercises(
   rawText: string,
   topicTitle: string
 ): Promise<ConvertedExercise[]> {
+  if (process.env.MOCK_AI === "true") return mockExercises;
   const message = await client.messages.create({
     model: "claude-opus-4-7",
     max_tokens: 4096,

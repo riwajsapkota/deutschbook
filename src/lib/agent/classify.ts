@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { mockClassification } from "./mock";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -20,6 +21,8 @@ export async function classifyContent(
   extractedText: string,
   existingChapterTitles: string[]
 ): Promise<ClassificationResult> {
+  if (process.env.MOCK_AI === "true") return mockClassification;
+
   const existingList =
     existingChapterTitles.length > 0
       ? `Existing chapters: ${existingChapterTitles.join(", ")}`
