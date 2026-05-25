@@ -25,6 +25,7 @@ export default function NewSessionPage() {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
       "text/csv": [".csv"],
       "text/plain": [".txt"],
+      "text/html": [".html", ".htm"],
       "audio/*": [".mp3", ".m4a", ".wav"],
       "image/*": [".jpg", ".jpeg", ".png"],
     },
@@ -137,7 +138,7 @@ export default function NewSessionPage() {
                 ? "Drop files here..."
                 : "Drag & drop PDFs, Excel files, or audio here, or click to browse"}
             </p>
-            <p className="text-xs text-gray-400 mt-1">PDF, XLS, XLSX, CSV, MP3, M4A</p>
+            <p className="text-xs text-gray-400 mt-1">PDF, XLS, XLSX, CSV, TXT, HTML, MP3, M4A — Apple Notes exports (.html) supported</p>
           </div>
 
           {files.length > 0 && (

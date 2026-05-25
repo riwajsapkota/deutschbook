@@ -9,7 +9,7 @@ export function detectFileType(
   if ([".mp3", ".m4a", ".wav", ".ogg", ".aac"].includes(ext)) return "audio";
   if ([".xls", ".xlsx", ".csv"].includes(ext)) return "excel";
   if ([".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(ext)) return "image";
-  return "text";
+  return "text"; // includes .txt, .md, .html, .htm
 }
 
 export async function extractTextFromFile(filePath: string): Promise<string> {
@@ -29,6 +29,27 @@ export async function extractTextFromFile(filePath: string): Promise<string> {
 
   if ([".txt", ".md"].includes(ext)) {
     return fs.readFileSync(filePath, "utf-8");
+  }
+
+  if ([".html", ".htm"].includes(ext)) {
+    const html = fs.readFileSync(filePath, "utf-8");
+    // Strip HTML tags and decode basic entities
+    return html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
   }
 
   return "";

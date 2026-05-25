@@ -22,10 +22,28 @@ interface Props {
 export default function ChapterClient({ chapterId, theory, exercises, vocabulary, latestAttempts }: Props) {
   const [tab, setTab] = useState<"theory" | "exercises" | "vocabulary">("theory");
 
+  const handlePrint = () => window.print();
+
   return (
     <div>
+      {/* Action buttons */}
+      <div className="flex gap-2 mb-4 print:hidden">
+        <Link
+          href={`/book/${chapterId}/teach`}
+          className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Teach me this
+        </Link>
+        <button
+          onClick={handlePrint}
+          className="bg-white border border-gray-300 text-gray-700 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+        >
+          Export PDF
+        </button>
+      </div>
+
       {/* Tab bar */}
-      <div className="flex gap-1 border-b border-gray-200 mb-6">
+      <div className="flex gap-1 border-b border-gray-200 mb-6 print:hidden">
         {(["theory", "exercises", "vocabulary"] as const).map((t) => (
           <button
             key={t}

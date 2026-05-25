@@ -289,7 +289,7 @@ export default function QuizClient() {
                 key={a.value}
                 onClick={() => handleAssess(a.value)}
                 disabled={saving}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${a.color}`}
+                className={`flex-1 md:flex-none px-4 py-3 md:py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${a.color}`}
               >
                 {a.label}
               </button>
@@ -342,7 +342,7 @@ function QuizItem({
           onChange={(e) => onChange(e.target.value)}
           disabled={submitted}
           placeholder="Your answer..."
-          className={`ml-4 w-[calc(100%-1rem)] border rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${submitted ? "bg-gray-50 cursor-not-allowed border-gray-200" : "bg-white border-gray-300"}`}
+          className={`ml-4 w-[calc(100%-1rem)] border rounded px-3 py-3 text-base md:text-sm md:py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${submitted ? "bg-gray-50 cursor-not-allowed border-gray-200" : "bg-white border-gray-300"}`}
         />
       )}
 
