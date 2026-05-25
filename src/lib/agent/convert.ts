@@ -15,7 +15,7 @@ export async function convertExercises(
   topicTitle: string
 ): Promise<ConvertedExercise[]> {
   const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-opus-4-7",
     max_tokens: 4096,
     system: `You are converting raw German exercise text into structured interactive exercises for a B1/B2 learner.
 Always respond with valid JSON only, no extra text.`,

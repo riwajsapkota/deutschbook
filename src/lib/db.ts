@@ -242,6 +242,48 @@ export const vocabulary = {
       ),
 };
 
+// Attempts
+export const attempts = {
+  getByExercise: (exerciseId: string) =>
+    getDb()
+      .prepare("SELECT * FROM attempts WHERE exercise_id = ? ORDER BY attempted_at DESC")
+      .all(exerciseId),
+  getLatestByExercise: (exerciseId: string) =>
+    getDb()
+      .prepare("SELECT * FROM attempts WHERE exercise_id = ? ORDER BY attempted_at DESC LIMIT 1")
+      .get(exerciseId),
+  create: (data: {
+    id: string;
+    exercise_id?: string | null;
+    vocabulary_item_id?: string | null;
+    score: number;
+    answers: unknown[];
+    self_assessment?: string | null;
+  }) =>
+    getDb()
+      .prepare(
+        "INSERT INTO attempts (id, exercise_id, vocabulary_item_id, score, answers, self_assessment) VALUES (?, ?, ?, ?, ?, ?)"
+      )
+      .run(
+        data.id,
+        data.exercise_id ?? null,
+        data.vocabulary_item_id ?? null,
+        data.score,
+        JSON.stringify(data.answers),
+        data.self_assessment ?? null
+      ),
+  getSummaryByChapter: (chapterId: string) =>
+    getDb()
+      .prepare(
+        `SELECT e.id as exercise_id, a.score, a.self_assessment, a.attempted_at
+         FROM exercises e
+         LEFT JOIN attempts a ON a.exercise_id = e.id
+         WHERE e.chapter_id = ?
+         ORDER BY a.attempted_at DESC`
+      )
+      .all(chapterId),
+};
+
 // Materials
 export const materials = {
   getBySession: (sessionId: string) =>

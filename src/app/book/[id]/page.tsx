@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { chapters as chaptersDb, exercises as exercisesDb, vocabulary as vocabDb } from "@/lib/db";
+import { chapters as chaptersDb, exercises as exercisesDb, vocabulary as vocabDb, attempts as attemptsDb } from "@/lib/db";
 import { Chapter, Exercise, VocabularyItem } from "@/types";
+import ChapterClient from "./ChapterClient";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,17 @@ export default async function ChapterPage({ params }: PageProps) {
     tags: typeof v.tags === "string" ? JSON.parse(v.tags) : v.tags,
   }));
 
+  // Fetch latest attempt per exercise for completion status
+  const latestAttempts = Object.fromEntries(
+    exercises.map((ex) => {
+      const latest = attemptsDb.getLatestByExercise(ex.id) as {
+        score: number;
+        self_assessment: string | null;
+      } | undefined;
+      return [ex.id, latest ?? null];
+    })
+  );
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -51,105 +63,13 @@ export default async function ChapterPage({ params }: PageProps) {
         <p className="text-gray-600 mb-8">{chapter.summary}</p>
       )}
 
-      {/* Theory */}
-      {chapter.theory && (
-        <section className="mb-10">
-          <h2 className="font-semibold text-lg mb-3">Theory</h2>
-          <div className="bg-white border border-gray-200 rounded-lg px-6 py-5 prose prose-sm max-w-none">
-            <TheoryContent content={chapter.theory} />
-          </div>
-        </section>
-      )}
-
-      {/* Exercises */}
-      <section className="mb-10">
-        <h2 className="font-semibold text-lg mb-3">
-          Exercises ({exercises.length})
-        </h2>
-        {exercises.length === 0 ? (
-          <p className="text-sm text-gray-500">No exercises yet for this chapter.</p>
-        ) : (
-          <ul className="space-y-3">
-            {exercises.map((ex) => (
-              <li key={ex.id}>
-                <Link
-                  href={`/book/${id}/exercise/${ex.id}`}
-                  className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-5 py-4 hover:border-blue-300 transition-colors"
-                >
-                  <div>
-                    <div className="font-medium text-sm">{ex.instruction}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      {ex.items.length} item{ex.items.length !== 1 ? "s" : ""} · {ex.type.replace(/_/g, " ")}
-                      {ex.source_file ? ` · ${ex.source_file}` : ""}
-                    </div>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded capitalize shrink-0 ml-4 ${difficultyColor(ex.difficulty)}`}>
-                    {ex.difficulty}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Vocabulary */}
-      {vocabulary.length > 0 && (
-        <section>
-          <h2 className="font-semibold text-lg mb-3">
-            Vocabulary ({vocabulary.length})
-          </h2>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="text-left px-4 py-2 font-medium text-gray-600">Word</th>
-                  <th className="text-left px-4 py-2 font-medium text-gray-600">Translation</th>
-                  <th className="text-left px-4 py-2 font-medium text-gray-600 hidden md:table-cell">Example</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vocabulary.map((v, i) => (
-                  <tr key={v.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-4 py-3 font-medium">
-                      {v.article ? <span className="text-gray-400 text-xs mr-1">{v.article}</span> : null}
-                      {v.word}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{v.translation}</td>
-                    <td className="px-4 py-3 text-gray-500 italic hidden md:table-cell">{v.example_sentence}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+      <ChapterClient
+        chapterId={id}
+        theory={chapter.theory}
+        exercises={exercises}
+        vocabulary={vocabulary}
+        latestAttempts={latestAttempts}
+      />
     </div>
   );
-}
-
-function TheoryContent({ content }: { content: string }) {
-  // Render markdown-like content with basic formatting
-  const lines = content.split("\n");
-  return (
-    <div className="space-y-2">
-      {lines.map((line, i) => {
-        if (line.startsWith("# ")) return <h1 key={i} className="text-xl font-bold">{line.slice(2)}</h1>;
-        if (line.startsWith("## ")) return <h2 key={i} className="text-lg font-semibold mt-4">{line.slice(3)}</h2>;
-        if (line.startsWith("### ")) return <h3 key={i} className="text-base font-semibold mt-3">{line.slice(4)}</h3>;
-        if (line.startsWith("- ")) return <li key={i} className="ml-4 list-disc">{line.slice(2)}</li>;
-        if (line.startsWith("**") && line.endsWith("**")) return <p key={i} className="font-semibold">{line.slice(2, -2)}</p>;
-        if (line.trim() === "") return <div key={i} className="h-2" />;
-        return <p key={i}>{line}</p>;
-      })}
-    </div>
-  );
-}
-
-function difficultyColor(d: string) {
-  return d === "easy"
-    ? "bg-green-100 text-green-700"
-    : d === "hard"
-    ? "bg-red-100 text-red-700"
-    : "bg-yellow-100 text-yellow-700";
 }

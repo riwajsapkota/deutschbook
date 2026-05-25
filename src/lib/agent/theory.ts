@@ -13,7 +13,7 @@ export async function generateTheory(
     : "There is no existing theory. Write it from scratch.";
 
   const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-opus-4-7",
     max_tokens: 3000,
     system: `You are writing a chapter in a personal German grammar textbook for a ${level} learner.
 Write clearly and concisely with rules, tables where helpful, and example sentences.
