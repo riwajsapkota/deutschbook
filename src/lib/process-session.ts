@@ -1,10 +1,11 @@
 import { randomUUID } from "crypto";
-import { chapters, exercises, materials, sessions, vocabulary } from "./db";
+import { chapters, exercises, materials, sessions, vocabulary, reviewSchedules } from "./db";
 import { extractTextFromFile } from "./file-processing";
 import { classifyContent } from "./agent/classify";
 import { convertExercises } from "./agent/convert";
 import { generateTheory } from "./agent/theory";
 import { extractVocabulary } from "./agent/vocabulary";
+import { initialSchedule } from "./spaced-repetition";
 import { Chapter, Material } from "@/types";
 
 export async function processSession(sessionId: string): Promise<void> {
@@ -16,7 +17,6 @@ export async function processSession(sessionId: string): Promise<void> {
 
   for (const mat of mats) {
     if (mat.file_type === "audio" || mat.file_type === "image") {
-      // Skip binary types for now
       materials.updateStatus(mat.id, "processed");
       continue;
     }
@@ -48,12 +48,13 @@ export async function processSession(sessionId: string): Promise<void> {
           existingTitles.push(topic.title);
         }
 
-        // Step 2: Convert exercises
+        // Step 2: Convert exercises + schedule for review
         if (classification.hasExercises) {
           const converted = await convertExercises(topic.relevantText || text, topic.title);
           for (const ex of converted) {
+            const exId = randomUUID();
             exercises.create({
-              id: randomUUID(),
+              id: exId,
               chapter_id: chapter.id,
               session_id: sessionId,
               source_file: mat.original_filename,
@@ -61,6 +62,18 @@ export async function processSession(sessionId: string): Promise<void> {
               instruction: ex.instruction,
               items: ex.items,
               difficulty: ex.difficulty,
+            });
+
+            // Schedule the new exercise for its first review
+            const sched = initialSchedule();
+            reviewSchedules.upsert({
+              id: randomUUID(),
+              target_type: "exercise",
+              target_id: exId,
+              next_review_at: sched.next_review_at.toISOString(),
+              interval_days: sched.interval_days,
+              ease_factor: sched.ease_factor,
+              review_count: sched.review_count,
             });
           }
         }

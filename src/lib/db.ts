@@ -344,4 +344,47 @@ export const reviewSchedules = {
         data.ease_factor ?? 2.5,
         data.review_count ?? 0
       ),
+  getByTarget: (target_type: string, target_id: string) =>
+    getDb()
+      .prepare("SELECT * FROM review_schedules WHERE target_type = ? AND target_id = ?")
+      .get(target_type, target_id),
+
+  // Returns exercises due for review, joined with chapter info
+  getDueExercises: (now: string) =>
+    getDb()
+      .prepare(
+        `SELECT e.*, c.title as chapter_title, c.category, c.level,
+                rs.next_review_at, rs.interval_days, rs.ease_factor, rs.review_count
+         FROM exercises e
+         JOIN chapters c ON c.id = e.chapter_id
+         LEFT JOIN review_schedules rs ON rs.target_id = e.id AND rs.target_type = 'exercise'
+         WHERE rs.next_review_at <= ? OR rs.id IS NULL
+         ORDER BY rs.next_review_at ASC`
+      )
+      .all(now),
+
+  // Health per chapter: counts overdue and upcoming exercises
+  getChapterHealth: () =>
+    getDb()
+      .prepare(
+        `SELECT
+           c.id,
+           COUNT(e.id) as total_exercises,
+           SUM(CASE WHEN rs.next_review_at < datetime('now') THEN 1 ELSE 0 END) as overdue,
+           SUM(CASE WHEN rs.next_review_at BETWEEN datetime('now') AND datetime('now', '+3 days') THEN 1 ELSE 0 END) as due_soon,
+           MIN(rs.next_review_at) as earliest_due
+         FROM chapters c
+         LEFT JOIN exercises e ON e.chapter_id = c.id
+         LEFT JOIN review_schedules rs ON rs.target_id = e.id AND rs.target_type = 'exercise'
+         GROUP BY c.id`
+      )
+      .all(),
+
+  countDueNow: (now: string) =>
+    (getDb()
+      .prepare(
+        `SELECT COUNT(*) as count FROM review_schedules
+         WHERE target_type = 'exercise' AND next_review_at <= ?`
+      )
+      .get(now) as { count: number }).count,
 };

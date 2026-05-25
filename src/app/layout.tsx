@@ -39,6 +39,9 @@ export default function RootLayout({
           <Link href="/book" className="text-sm text-gray-600 hover:text-gray-900">
             Book
           </Link>
+          <Link href="/quiz" className="text-sm text-gray-600 hover:text-gray-900">
+            Quiz
+          </Link>
           <Link href="/vocab" className="text-sm text-gray-600 hover:text-gray-900">
             Vocabulary
           </Link>
