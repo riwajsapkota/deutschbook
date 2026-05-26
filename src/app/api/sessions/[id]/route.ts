@@ -14,28 +14,37 @@ export async function GET(
   return NextResponse.json({ ...session, materials: mats });
 }
 
-// Reset a session back to inbox so it can be re-processed
 export async function PATCH(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const session = sessions.getById(id) as { status: string } | undefined;
   if (!session) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Delete exercises (and their attempts + schedules) generated from this session
-  const exerciseIds = exercises.getBySession(id).map((e) => e.id);
+  const body = await request.json().catch(() => ({}));
+
+  // Notes update
+  if ("raw_notes" in body) {
+    sessions.updateNotes(id, body.raw_notes ?? null);
+    const updated = sessions.getById(id) as Record<string, unknown>;
+    const mats = materials.getBySession(id);
+    return NextResponse.json({ ...updated, materials: mats });
+  }
+
+  // Reset a session back to inbox so it can be re-processed
+  const sessionExercises = exercises.getBySession(id);
+  const exerciseIds = sessionExercises.map((e) => e.id);
+  const affectedChapterIds = [...new Set(sessionExercises.map((e) => e.chapter_id))];
   attempts.deleteByExerciseIds(exerciseIds);
   reviewSchedules.deleteByExerciseIds(exerciseIds);
   exercises.deleteBySession(id);
-
-  // Remove chapters that now have no exercises
-  chapters.deleteOrphaned();
-
-  // Reset material statuses to pending
+  // Only delete chapters that are now completely exercise-less due to this session being reset
+  for (const chapterId of affectedChapterIds) {
+    const remaining = exercises.getByChapter(chapterId) as { id: string }[];
+    if (remaining.length === 0) chapters.deleteById(chapterId);
+  }
   materials.resetBySession(id);
-
-  // Put session back to inbox
   sessions.updateStatus(id, "inbox");
 
   const updated = sessions.getById(id) as Record<string, unknown>;

@@ -138,6 +138,10 @@ export const sessions = {
     getDb()
       .prepare("UPDATE sessions SET status = ? WHERE id = ?")
       .run(status, id),
+  updateNotes: (id: string, notes: string | null) =>
+    getDb()
+      .prepare("UPDATE sessions SET raw_notes = ? WHERE id = ?")
+      .run(notes, id),
   delete: (id: string) =>
     getDb().prepare("DELETE FROM sessions WHERE id = ?").run(id),
 };
@@ -159,6 +163,11 @@ export const chapters = {
       db.prepare("DELETE FROM vocabulary WHERE chapter_id = ?").run(id);
       db.prepare("DELETE FROM chapters WHERE id = ?").run(id);
     }
+  },
+  deleteById: (id: string) => {
+    const db = getDb();
+    db.prepare("DELETE FROM vocabulary WHERE chapter_id = ?").run(id);
+    db.prepare("DELETE FROM chapters WHERE id = ?").run(id);
   },
   create: (data: {
     id: string;
@@ -205,8 +214,14 @@ export const exercises = {
       .all(chapterId),
   getBySession: (sessionId: string) =>
     getDb()
-      .prepare("SELECT id FROM exercises WHERE session_id = ?")
-      .all(sessionId) as { id: string }[],
+      .prepare("SELECT id, chapter_id FROM exercises WHERE session_id = ?")
+      .all(sessionId) as { id: string; chapter_id: string }[],
+  getChapterIdsBySession: (sessionId: string) => {
+    const rows = getDb()
+      .prepare("SELECT DISTINCT chapter_id FROM exercises WHERE session_id = ?")
+      .all(sessionId) as { chapter_id: string }[];
+    return rows.map((r) => r.chapter_id);
+  },
   deleteBySession: (sessionId: string) =>
     getDb().prepare("DELETE FROM exercises WHERE session_id = ?").run(sessionId),
   getById: (id: string) =>
