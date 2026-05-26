@@ -35,7 +35,7 @@ export default function SessionsPage() {
                 className="flex items-start justify-between bg-white border border-gray-200 rounded-lg px-5 py-4 hover:border-blue-300 transition-colors"
               >
                 <div>
-                  <div className="font-medium">
+                  <div className="font-medium text-blue-900">
                     {s.lecture_number ? `Lecture ${s.lecture_number} — ` : ""}
                     {s.date}
                   </div>

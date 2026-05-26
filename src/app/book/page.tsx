@@ -74,7 +74,7 @@ function ChapterSection({ title, chapters, healthMap }: {
                 <div className="flex items-start gap-3 min-w-0">
                   <HealthDot health={h} />
                   <div className="min-w-0">
-                    <div className="font-medium">{c.title}</div>
+                    <div className="font-medium text-blue-900">{c.title}</div>
                     {c.summary && (
                       <div className="text-sm text-gray-600 mt-0.5 line-clamp-1">{c.summary}</div>
                     )}

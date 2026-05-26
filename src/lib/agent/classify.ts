@@ -56,7 +56,7 @@ Respond with this JSON structure:
       "title": "string (grammar concept or vocabulary theme)",
       "category": "grammar" | "vocabulary" | "other",
       "level": "B1" | "B2" | "mixed",
-      "relevantText": "brief excerpt or description of what exercises/content covers this topic"
+      "relevantText": "copy the relevant paragraphs and sentences verbatim from the source text that explain this topic (include all rules, examples, and notes the teacher wrote)"
     }
   ],
   "hasExercises": boolean,

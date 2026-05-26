@@ -137,7 +137,7 @@ export default function QuizClient() {
           {exercises.slice(0, 5).map((ex) => (
             <div key={ex.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm text-left">
               <div>
-                <span className="font-medium">{ex.chapter_title}</span>
+                <span className="font-medium text-blue-900">{ex.chapter_title}</span>
                 <span className="text-gray-600 ml-2 text-xs">{ex.instruction.slice(0, 50)}{ex.instruction.length > 50 ? "…" : ""}</span>
               </div>
               <span className="text-xs text-gray-600 shrink-0 ml-2">{ex.items.length} items</span>
@@ -199,7 +199,7 @@ export default function QuizClient() {
             const pct = Math.round((v.correct / Math.max(v.total, 1)) * 100);
             return (
               <div key={v.title} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm">
-                <span className="font-medium">{v.title}</span>
+                <span className="font-medium text-blue-900">{v.title}</span>
                 <span className={`font-semibold ${pct >= 70 ? "text-green-600" : "text-amber-600"}`}>{pct}%</span>
               </div>
             );
@@ -323,7 +323,7 @@ function QuizItem({
     <div className={`border rounded-lg px-4 py-3 transition-colors ${border}`}>
       <div className="flex gap-2 items-start mb-2">
         <span className="text-xs font-semibold text-gray-600 shrink-0 mt-0.5">{index}.</span>
-        <p className="text-sm text-gray-800">{item.prompt}</p>
+        <p className="text-sm text-blue-900 font-medium">{item.prompt}</p>
       </div>
 
       {type === "multiple_choice" && item.options.length > 0 ? (

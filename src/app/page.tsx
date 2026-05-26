@@ -71,7 +71,7 @@ export default function Dashboard() {
                     href={`/sessions/${s.id}`}
                     className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-blue-300 transition-colors"
                   >
-                    <span className="font-medium text-sm">
+                    <span className="font-medium text-sm text-blue-900">
                       {s.lecture_number ? `Lecture ${s.lecture_number} — ` : ""}{s.date}
                     </span>
                     <StatusBadge status={s.status} />
@@ -102,7 +102,7 @@ export default function Dashboard() {
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <HealthDot health={h} />
-                        <span className="font-medium text-sm truncate">{c.title}</span>
+                        <span className="font-medium text-sm truncate text-blue-900">{c.title}</span>
                       </div>
                       <span className="text-xs text-gray-600 shrink-0 ml-2">{c.level}</span>
                     </Link>

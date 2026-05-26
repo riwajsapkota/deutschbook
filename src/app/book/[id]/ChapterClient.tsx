@@ -80,9 +80,9 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
                   h1: ({ children }) => <h1 className="text-xl font-bold mt-6 mb-2 first:mt-0">{children}</h1>,
                   h2: ({ children }) => <h2 className="text-lg font-semibold mt-5 mb-2">{children}</h2>,
                   h3: ({ children }) => <h3 className="text-base font-semibold mt-4 mb-1">{children}</h3>,
-                  p: ({ children }) => <p className="text-sm text-gray-800 leading-relaxed mb-3">{children}</p>,
-                  ul: ({ children }) => <ul className="list-disc ml-5 mb-3 space-y-1 text-sm text-gray-800">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal ml-5 mb-3 space-y-1 text-sm text-gray-800">{children}</ol>,
+                  p: ({ children }) => <p className="text-sm text-gray-900 leading-relaxed mb-3">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc ml-5 mb-3 space-y-1 text-sm text-gray-900">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal ml-5 mb-3 space-y-1 text-sm text-gray-900">{children}</ol>,
                   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
                   strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                   em: ({ children }) => <em className="italic text-gray-600">{children}</em>,
@@ -98,10 +98,10 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
                     </div>
                   ),
                   th: ({ children }) => (
-                    <th className="bg-gray-50 border border-gray-200 px-3 py-2 text-left font-medium text-gray-700">{children}</th>
+                    <th className="bg-gray-50 border border-gray-200 px-3 py-2 text-left font-medium text-blue-900">{children}</th>
                   ),
                   td: ({ children }) => (
-                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{children}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-900">{children}</td>
                   ),
                   blockquote: ({ children }) => (
                     <blockquote className="border-l-4 border-blue-300 pl-4 italic text-gray-600 mb-3">{children}</blockquote>
@@ -138,7 +138,7 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
                       className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-5 py-4 hover:border-blue-300 transition-colors"
                     >
                       <div className="min-w-0">
-                        <div className="font-medium text-sm truncate">{ex.instruction}</div>
+                        <div className="font-medium text-sm truncate text-blue-900">{ex.instruction}</div>
                         <div className="text-xs text-gray-600 mt-0.5">
                           {ex.items.length} item{ex.items.length !== 1 ? "s" : ""} · {ex.type.replace(/_/g, " ")}
                           {ex.source_file ? ` · ${ex.source_file}` : ""}
@@ -179,12 +179,12 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
                 <tbody>
                   {vocabulary.map((v, i) => (
                     <tr key={v.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="px-4 py-3 font-medium">
-                        {v.article && <span className="text-gray-600 text-xs mr-1">{v.article}</span>}
+                      <td className="px-4 py-3 font-medium text-blue-900">
+                        {v.article && <span className="text-gray-500 text-xs mr-1">{v.article}</span>}
                         {v.word}
-                        {v.plural && <span className="text-gray-600 text-xs ml-1">({v.plural})</span>}
+                        {v.plural && <span className="text-gray-500 text-xs ml-1">({v.plural})</span>}
                       </td>
-                      <td className="px-4 py-3 text-gray-800">{v.translation}</td>
+                      <td className="px-4 py-3 text-blue-900 font-medium">{v.translation}</td>
                       <td className="px-4 py-3 text-gray-700 italic hidden md:table-cell">{v.example_sentence}</td>
                     </tr>
                   ))}

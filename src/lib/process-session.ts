@@ -78,12 +78,12 @@ export async function processSession(sessionId: string): Promise<void> {
           }
         }
 
-        // Step 3: Generate / update theory
-        const sampleText = topic.relevantText || text.slice(0, 1500);
+        // Step 3: Extract / format theory from source material
+        const sourceText = topic.relevantText || text.slice(0, 6000);
         const theoryResult = await generateTheory(
           topic.title,
           topic.level,
-          sampleText,
+          sourceText,
           chapter.theory
         );
         chapters.update(chapter.id, {

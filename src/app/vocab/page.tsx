@@ -37,25 +37,25 @@ export default function VocabPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="text-left px-4 py-2 font-medium text-gray-800">Word</th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-800">Translation</th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-800 hidden lg:table-cell">Example</th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-800 hidden md:table-cell">Tags</th>
+                      <th className="text-left px-4 py-2 font-medium text-blue-900">Word</th>
+                      <th className="text-left px-4 py-2 font-medium text-blue-900">Translation</th>
+                      <th className="text-left px-4 py-2 font-medium text-blue-900 hidden lg:table-cell">Example</th>
+                      <th className="text-left px-4 py-2 font-medium text-blue-900 hidden md:table-cell">Tags</th>
                     </tr>
                   </thead>
                   <tbody>
                     {words.map((v, i) => (
                       <tr key={v.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                        <td className="px-4 py-3 font-medium">
+                        <td className="px-4 py-3 font-medium text-blue-900">
                           {v.article && (
-                            <span className="text-gray-600 text-xs mr-1">{v.article}</span>
+                            <span className="text-gray-500 text-xs mr-1">{v.article}</span>
                           )}
                           {v.word}
                           {v.plural && (
-                            <span className="text-gray-600 text-xs ml-1">({v.plural})</span>
+                            <span className="text-gray-500 text-xs ml-1">({v.plural})</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-gray-800">{v.translation}</td>
+                        <td className="px-4 py-3 text-blue-900 font-medium">{v.translation}</td>
                         <td className="px-4 py-3 text-gray-700 italic hidden lg:table-cell">
                           {v.example_sentence}
                         </td>

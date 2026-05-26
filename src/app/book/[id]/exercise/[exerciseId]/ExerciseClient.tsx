@@ -254,7 +254,7 @@ function ExerciseItemView({
     <div className={`border rounded-lg px-5 py-4 transition-colors ${borderColor}`}>
       <div className="flex gap-3 items-start mb-3">
         <span className="text-xs font-semibold text-gray-600 mt-0.5 shrink-0">{index}.</span>
-        <p className="text-sm text-gray-800">{item.prompt}</p>
+        <p className="text-sm text-blue-900 font-medium">{item.prompt}</p>
       </div>
 
       {type === "multiple_choice" && item.options.length > 0 ? (
