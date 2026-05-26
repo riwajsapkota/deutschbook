@@ -30,7 +30,7 @@ export async function classifyContent(
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 2048,
+    max_tokens: 8192,
     system: `You are analyzing German language learning materials for a B1/B2 learner.
 Your job is to identify grammar topics, vocabulary themes, and exercise types present in the text.
 Always respond with valid JSON only, no extra text.`,
