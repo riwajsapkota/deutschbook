@@ -77,5 +77,9 @@ Respond with this JSON structure:
   if (!jsonMatch) {
     return { topics: [], hasExercises: false, hasVocabulary: false, summary: "Could not classify content." };
   }
-  return JSON.parse(jsonrepair(jsonMatch[0])) as ClassificationResult;
+  try {
+    return JSON.parse(jsonrepair(jsonMatch[0])) as ClassificationResult;
+  } catch {
+    return { topics: [], hasExercises: false, hasVocabulary: false, summary: "Could not classify content." };
+  }
 }

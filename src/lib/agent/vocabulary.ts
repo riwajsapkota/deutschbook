@@ -54,6 +54,10 @@ Only include 5-15 of the most important vocabulary items. For nouns always inclu
   const jsonMatch = text2.match(/\{[\s\S]*\}/);
   if (!jsonMatch) return [];
 
-  const result = JSON.parse(jsonrepair(jsonMatch[0])) as { vocabulary: VocabResult[] };
-  return result.vocabulary ?? [];
+  try {
+    const result = JSON.parse(jsonrepair(jsonMatch[0])) as { vocabulary: VocabResult[] };
+    return result.vocabulary ?? [];
+  } catch {
+    return [];
+  }
 }

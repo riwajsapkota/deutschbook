@@ -50,5 +50,9 @@ Respond with this JSON:
   if (!jsonMatch) {
     return { summary: topicTitle, theory: "Theory not generated." };
   }
-  return JSON.parse(jsonrepair(jsonMatch[0])) as { summary: string; theory: string };
+  try {
+    return JSON.parse(jsonrepair(jsonMatch[0])) as { summary: string; theory: string };
+  } catch {
+    return { summary: topicTitle, theory: "Theory not generated." };
+  }
 }

@@ -67,6 +67,10 @@ Respond with this JSON:
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) return [];
 
-  const result = JSON.parse(jsonrepair(jsonMatch[0])) as { exercises: ConvertedExercise[] };
-  return result.exercises ?? [];
+  try {
+    const result = JSON.parse(jsonrepair(jsonMatch[0])) as { exercises: ConvertedExercise[] };
+    return result.exercises ?? [];
+  } catch {
+    return [];
+  }
 }
