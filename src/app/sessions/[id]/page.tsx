@@ -64,8 +64,15 @@ export default function SessionDetailPage() {
     const res = await fetch(`/api/sessions/${id}`, { method: "PATCH" });
     if (res.ok) {
       await fetchSession();
+      // Auto-trigger processing after reset
+      setActioning(false);
+      setProcessing(true);
+      await fetch(`/api/sessions/${id}/process`, { method: "POST" });
+      fetchSession();
+      setProcessing(false);
+    } else {
+      setActioning(false);
     }
-    setActioning(false);
   };
 
   const handleDelete = async () => {
@@ -86,6 +93,7 @@ export default function SessionDetailPage() {
 
   const isInbox = session.status === "inbox";
   const isPartial = session.status === "partially_processed";
+  const isProcessed = session.status === "processed";
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
@@ -116,16 +124,16 @@ export default function SessionDetailPage() {
               {processing ? "Processing..." : "Process with AI"}
             </button>
           )}
-          {isPartial && (
+          {(isPartial || isProcessed) && (
             <button
               onClick={handleRetry}
               disabled={actioning}
               className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors"
             >
-              {actioning ? "Resetting..." : "Retry Processing"}
+              {actioning ? "Resetting..." : "Reprocess"}
             </button>
           )}
-          {(isInbox || isPartial) && (
+          {(isInbox || isPartial || isProcessed) && (
             <button
               onClick={handleDelete}
               disabled={actioning}

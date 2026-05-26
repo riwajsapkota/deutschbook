@@ -14,7 +14,7 @@ export async function GET(
   return NextResponse.json({ ...session, materials: mats });
 }
 
-// Reset a partially_processed session back to inbox so it can be re-processed
+// Reset a session back to inbox so it can be re-processed
 export async function PATCH(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -22,9 +22,6 @@ export async function PATCH(
   const { id } = await params;
   const session = sessions.getById(id) as { status: string } | undefined;
   if (!session) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (session.status === "processed") {
-    return NextResponse.json({ error: "Cannot reset a fully processed session" }, { status: 400 });
-  }
 
   // Delete exercises (and their attempts + schedules) generated from this session
   const exerciseIds = exercises.getBySession(id).map((e) => e.id);
@@ -51,10 +48,6 @@ export async function DELETE(
   const { id } = await params;
   const session = sessions.getById(id) as { status: string } | undefined;
   if (!session) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (session.status === "processed") {
-    return NextResponse.json({ error: "Cannot delete a fully processed session" }, { status: 400 });
-  }
-
   // Cascade: review schedules → attempts → exercises → materials (files) → session
   const exerciseIds = exercises.getBySession(id).map((e) => e.id);
   attempts.deleteByExerciseIds(exerciseIds);
