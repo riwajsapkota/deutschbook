@@ -358,6 +358,8 @@ export const materials = {
         "INSERT INTO materials (id, session_id, file_path, file_type, original_filename) VALUES (?, ?, ?, ?, ?)"
       )
       .run(data.id, data.session_id, data.file_path, data.file_type, data.original_filename),
+  getById: (id: string) =>
+    getDb().prepare("SELECT * FROM materials WHERE id = ?").get(id),
   updateStatus: (id: string, status: string) =>
     getDb()
       .prepare("UPDATE materials SET processing_status = ? WHERE id = ?")

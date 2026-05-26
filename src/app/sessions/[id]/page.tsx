@@ -29,6 +29,7 @@ export default function SessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [actioning, setActioning] = useState(false);
+  const [retryingMaterial, setRetryingMaterial] = useState<string | null>(null);
   const [editingNotes, setEditingNotes] = useState(false);
   const [notesValue, setNotesValue] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
@@ -46,14 +47,25 @@ export default function SessionDetailPage() {
     fetchSession();
   }, [fetchSession]);
 
-  // Poll while processing
+  // Poll while session is processing or a material retry is in flight
   useEffect(() => {
     if (!session) return;
-    if (session.status !== "inbox") return;
+    const materialRetrying = retryingMaterial !== null;
+    const sessionProcessing = session.status === "inbox";
+    if (!sessionProcessing && !materialRetrying) return;
 
-    const interval = setInterval(fetchSession, 3000);
+    const interval = setInterval(() => {
+      fetchSession();
+      // Clear retry state once that material is no longer processing
+      if (retryingMaterial) {
+        const mat = session.materials.find((m) => m.id === retryingMaterial);
+        if (mat && mat.processing_status !== "processing") {
+          setRetryingMaterial(null);
+        }
+      }
+    }, 3000);
     return () => clearInterval(interval);
-  }, [session, fetchSession]);
+  }, [session, fetchSession, retryingMaterial]);
 
   const handleProcess = async () => {
     setProcessing(true);
@@ -75,6 +87,12 @@ export default function SessionDetailPage() {
     } else {
       setActioning(false);
     }
+  };
+
+  const handleRetryMaterial = async (materialId: string) => {
+    setRetryingMaterial(materialId);
+    await fetch(`/api/sessions/${id}/materials/${materialId}/process`, { method: "POST" });
+    fetchSession();
   };
 
   const handleSaveNotes = async () => {
@@ -226,7 +244,17 @@ export default function SessionDetailPage() {
                     <div className="text-xs text-slate-500 capitalize">{m.file_type}</div>
                   </div>
                 </div>
-                <ProcessingBadge status={m.processing_status} />
+                <div className="flex items-center gap-2">
+                  <ProcessingBadge status={retryingMaterial === m.id ? "processing" : m.processing_status} />
+                  {m.processing_status === "failed" && retryingMaterial !== m.id && (
+                    <button
+                      onClick={() => handleRetryMaterial(m.id)}
+                      className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded hover:bg-amber-100 transition-colors"
+                    >
+                      Retry
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
