@@ -7,7 +7,7 @@ export interface ClassifiedTopic {
   title: string;
   category: "grammar" | "vocabulary" | "other";
   level: "B1" | "B2" | "mixed";
-  relevantText: string;
+  relevantText?: string;
 }
 
 export interface ClassificationResult {
@@ -30,7 +30,7 @@ export async function classifyContent(
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 8192,
+    max_tokens: 1024,
     system: `You are analyzing German language learning materials for a B1/B2 learner.
 Your job is to identify grammar topics, vocabulary themes, and exercise types present in the text.
 Always respond with valid JSON only, no extra text.`,
@@ -59,8 +59,7 @@ Respond with this JSON structure:
     {
       "title": "string (the primary grammar concept or vocabulary theme being practiced)",
       "category": "grammar" | "vocabulary" | "other",
-      "level": "B1" | "B2" | "mixed",
-      "relevantText": "copy the relevant paragraphs and sentences verbatim from the source text that explain this topic — if the material is exercise-only with no explanation, copy a representative set of exercises that show the grammar pattern being practiced"
+      "level": "B1" | "B2" | "mixed"
     }
   ],
   "hasExercises": boolean,
