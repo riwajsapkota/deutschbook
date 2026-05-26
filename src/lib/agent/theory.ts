@@ -18,26 +18,26 @@ export async function generateTheory(
   const message = await client.messages.create({
     model: "claude-opus-4-7",
     max_tokens: 3000,
-    system: `You are formatting a chapter in a personal German grammar workbook for a ${level} learner.
-Your source is the teacher's original lesson material. Extract and organize the teacher's actual explanations, rules, and examples — do NOT add or invent content not present in the source text.
-Format it clearly with markdown: headers, tables where the source has table-like content, bullet points for rules.
+    system: `You are writing a chapter in a personal German grammar workbook for a ${level} learner.
+If the source material contains the teacher's explanations, rules, or notes: extract and preserve them faithfully — format into clean markdown but do not add content beyond what is in the source.
+If the source material is exercises-only with no explanations: write a concise grammar reference (rules, formation table, key examples) for the topic based on what the exercises are practicing.
 Always respond with valid JSON only, no extra text.`,
     messages: [
       {
         role: "user",
-        content: `Extract and format the teacher's explanations for the chapter: "${topicTitle}"
+        content: `Write the theory section for the chapter: "${topicTitle}"
 
 ${updateInstruction}
 
-Teacher's source material:
+Source material (may be teacher notes, exercises, or both):
 ---
 ${sourceText.slice(0, 6000)}
 ---
 
 Respond with this JSON:
 {
-  "summary": "One sentence describing the topic based on the source material",
-  "theory": "The teacher's explanations formatted as clean markdown. Preserve the teacher's wording, examples, and rules. Use headers, tables, and bullet points to improve readability, but do not add content that isn't in the source."
+  "summary": "One sentence describing the topic",
+  "theory": "Markdown content. If the source has teacher explanations, preserve them. If it is exercise-only, write a concise grammar reference covering the rule, formation, and 2-3 clear examples."
 }`,
       },
     ],

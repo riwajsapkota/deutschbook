@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import { sessions, materials, exercises, attempts, reviewSchedules } from "@/lib/db";
+import { sessions, materials, exercises, attempts, reviewSchedules, chapters } from "@/lib/db";
 
 export async function GET(
   _request: Request,
@@ -28,6 +28,9 @@ export async function PATCH(
   attempts.deleteByExerciseIds(exerciseIds);
   reviewSchedules.deleteByExerciseIds(exerciseIds);
   exercises.deleteBySession(id);
+
+  // Remove chapters that now have no exercises
+  chapters.deleteOrphaned();
 
   // Reset material statuses to pending
   materials.resetBySession(id);

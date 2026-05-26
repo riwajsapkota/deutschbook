@@ -41,8 +41,12 @@ Always respond with valid JSON only, no extra text.`,
 
 ${existingList}
 
-If a topic matches an existing chapter title (fuzzy match is fine), use that exact title.
-If it's a new topic, create a clear title (e.g., "Konjunktiv II", "Relativsätze", "Präpositionen mit Dativ").
+IMPORTANT: Identify the PRIMARY grammar topic being practiced, not secondary grammar that appears incidentally.
+For example, if a text has fill-in-the-blank exercises for prepositions (mit, nach, von, zu...), the topic is "Präpositionen" — not "Konjunktiv II" just because some sentences happen to use modal verbs.
+Focus on what the student is being asked to practice.
+
+Only reuse an existing chapter title if the content is genuinely about that same topic — do not force-fit.
+If it's a new topic, create a clear German grammar title (e.g., "Präpositionen mit Dativ", "Konjunktiv II", "Relativsätze").
 
 Text to analyze:
 ---
@@ -53,10 +57,10 @@ Respond with this JSON structure:
 {
   "topics": [
     {
-      "title": "string (grammar concept or vocabulary theme)",
+      "title": "string (the primary grammar concept or vocabulary theme being practiced)",
       "category": "grammar" | "vocabulary" | "other",
       "level": "B1" | "B2" | "mixed",
-      "relevantText": "copy the relevant paragraphs and sentences verbatim from the source text that explain this topic (include all rules, examples, and notes the teacher wrote)"
+      "relevantText": "copy the relevant paragraphs and sentences verbatim from the source text that explain this topic — if the material is exercise-only with no explanation, copy a representative set of exercises that show the grammar pattern being practiced"
     }
   ],
   "hasExercises": boolean,

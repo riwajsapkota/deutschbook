@@ -149,6 +149,17 @@ export const chapters = {
     getDb().prepare("SELECT * FROM chapters WHERE id = ?").get(id),
   findByTitle: (title: string) =>
     getDb().prepare("SELECT * FROM chapters WHERE lower(title) = lower(?)").get(title),
+  deleteOrphaned: () => {
+    const db = getDb();
+    // Find chapters with no exercises
+    const orphaned = db
+      .prepare("SELECT id FROM chapters WHERE id NOT IN (SELECT DISTINCT chapter_id FROM exercises)")
+      .all() as { id: string }[];
+    for (const { id } of orphaned) {
+      db.prepare("DELETE FROM vocabulary WHERE chapter_id = ?").run(id);
+      db.prepare("DELETE FROM chapters WHERE id = ?").run(id);
+    }
+  },
   create: (data: {
     id: string;
     title: string;

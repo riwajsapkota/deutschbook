@@ -3,11 +3,12 @@ import fs from "fs";
 
 export function detectFileType(
   filename: string
-): "pdf" | "audio" | "excel" | "image" | "text" {
+): "pdf" | "audio" | "excel" | "word" | "image" | "text" {
   const ext = path.extname(filename).toLowerCase();
   if (ext === ".pdf") return "pdf";
   if ([".mp3", ".m4a", ".wav", ".ogg", ".aac"].includes(ext)) return "audio";
   if ([".xls", ".xlsx", ".csv"].includes(ext)) return "excel";
+  if ([".doc", ".docx"].includes(ext)) return "word";
   if ([".jpg", ".jpeg", ".png", ".gif", ".webp"].includes(ext)) return "image";
   return "text"; // includes .txt, .md, .html, .htm
 }
@@ -21,6 +22,10 @@ export async function extractTextFromFile(filePath: string): Promise<string> {
 
   if ([".xls", ".xlsx"].includes(ext)) {
     return extractFromExcel(filePath);
+  }
+
+  if ([".doc", ".docx"].includes(ext)) {
+    return extractFromWord(filePath);
   }
 
   if (ext === ".csv") {
@@ -61,6 +66,13 @@ async function extractFromPdf(filePath: string): Promise<string> {
   const buffer = fs.readFileSync(filePath);
   const data = await pdfParse(buffer);
   return data.text as string;
+}
+
+async function extractFromWord(filePath: string): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mammoth = require("mammoth");
+  const result = await mammoth.extractRawText({ path: filePath });
+  return result.value as string;
 }
 
 async function extractFromExcel(filePath: string): Promise<string> {

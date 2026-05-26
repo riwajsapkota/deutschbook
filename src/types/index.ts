@@ -8,7 +8,7 @@ export type ExerciseType =
   | "translate"
   | "free_response";
 export type Difficulty = "easy" | "medium" | "hard";
-export type FileType = "pdf" | "audio" | "excel" | "image" | "text";
+export type FileType = "pdf" | "audio" | "excel" | "word" | "image" | "text";
 export type ProcessingStatus = "pending" | "processed" | "failed";
 export type ReviewTargetType = "chapter" | "exercise" | "vocabulary";
 export type SelfAssessment = "solid" | "shaky" | "forgotten";
