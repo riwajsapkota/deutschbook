@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import Anthropic from "@anthropic-ai/sdk";
 
 export function detectFileType(
   filename: string
@@ -73,8 +74,6 @@ async function extractFromPdf(filePath: string): Promise<string> {
 
 async function extractFromPdfViaVision(filePath: string): Promise<string> {
   if (process.env.MOCK_AI === "true") return "[Mock OCR text for scanned PDF]";
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Anthropic = require("@anthropic-ai/sdk");
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const buffer = fs.readFileSync(filePath);
   const base64 = buffer.toString("base64");
