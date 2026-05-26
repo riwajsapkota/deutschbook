@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { mockTheory } from "./mock";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -49,5 +50,5 @@ Respond with this JSON:
   if (!jsonMatch) {
     return { summary: topicTitle, theory: "Theory not generated." };
   }
-  return JSON.parse(jsonMatch[0]) as { summary: string; theory: string };
+  return JSON.parse(jsonrepair(jsonMatch[0])) as { summary: string; theory: string };
 }

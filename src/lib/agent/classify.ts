@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { mockClassification } from "./mock";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -76,5 +77,5 @@ Respond with this JSON structure:
   if (!jsonMatch) {
     return { topics: [], hasExercises: false, hasVocabulary: false, summary: "Could not classify content." };
   }
-  return JSON.parse(jsonMatch[0]) as ClassificationResult;
+  return JSON.parse(jsonrepair(jsonMatch[0])) as ClassificationResult;
 }

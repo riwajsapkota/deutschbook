@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { VocabularyItem } from "@/types";
 import { mockVocabulary } from "./mock";
 
@@ -53,6 +54,6 @@ Only include 5-15 of the most important vocabulary items. For nouns always inclu
   const jsonMatch = text2.match(/\{[\s\S]*\}/);
   if (!jsonMatch) return [];
 
-  const result = JSON.parse(jsonMatch[0]) as { vocabulary: VocabResult[] };
+  const result = JSON.parse(jsonrepair(jsonMatch[0])) as { vocabulary: VocabResult[] };
   return result.vocabulary ?? [];
 }

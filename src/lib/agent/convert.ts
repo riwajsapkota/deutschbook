@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { ExerciseItem, ExerciseType } from "@/types";
 import { mockExercises } from "./mock";
 
@@ -66,6 +67,6 @@ Respond with this JSON:
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) return [];
 
-  const result = JSON.parse(jsonMatch[0]) as { exercises: ConvertedExercise[] };
+  const result = JSON.parse(jsonrepair(jsonMatch[0])) as { exercises: ConvertedExercise[] };
   return result.exercises ?? [];
 }
