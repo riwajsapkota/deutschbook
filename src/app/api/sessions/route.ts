@@ -15,6 +15,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "date is required" }, { status: 400 });
   }
 
+  const existing = sessions.findByDateAndLecture(date, lecture_number ?? null);
+  if (existing) {
+    return NextResponse.json(
+      { error: "A session with this date and lecture number already exists", existing },
+      { status: 409 }
+    );
+  }
+
   const id = randomUUID();
   sessions.create({ id, date, lecture_number: lecture_number ?? null, raw_notes: raw_notes ?? null });
 

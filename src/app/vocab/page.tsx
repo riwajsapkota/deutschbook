@@ -20,27 +20,27 @@ export default function VocabPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <h1 className="text-2xl font-bold mb-1">Vocabulary</h1>
-      <p className="text-gray-500 mb-8">{all.length} words across all chapters</p>
+      <p className="text-gray-600 mb-8">{all.length} words across all chapters</p>
 
       {all.length === 0 ? (
-        <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-16 text-center text-gray-500">
+        <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-16 text-center text-gray-600">
           <p>No vocabulary yet. Process a session to extract words automatically.</p>
         </div>
       ) : (
         <div className="space-y-8">
           {Object.entries(byPos).map(([pos, words]) => (
             <section key={pos}>
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 capitalize">
+              <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-3 capitalize">
                 {pos}s ({words.length})
               </h2>
               <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600">Word</th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600">Translation</th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600 hidden lg:table-cell">Example</th>
-                      <th className="text-left px-4 py-2 font-medium text-gray-600 hidden md:table-cell">Tags</th>
+                      <th className="text-left px-4 py-2 font-medium text-gray-800">Word</th>
+                      <th className="text-left px-4 py-2 font-medium text-gray-800">Translation</th>
+                      <th className="text-left px-4 py-2 font-medium text-gray-800 hidden lg:table-cell">Example</th>
+                      <th className="text-left px-4 py-2 font-medium text-gray-800 hidden md:table-cell">Tags</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -48,15 +48,15 @@ export default function VocabPage() {
                       <tr key={v.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                         <td className="px-4 py-3 font-medium">
                           {v.article && (
-                            <span className="text-gray-400 text-xs mr-1">{v.article}</span>
+                            <span className="text-gray-600 text-xs mr-1">{v.article}</span>
                           )}
                           {v.word}
                           {v.plural && (
-                            <span className="text-gray-400 text-xs ml-1">({v.plural})</span>
+                            <span className="text-gray-600 text-xs ml-1">({v.plural})</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{v.translation}</td>
-                        <td className="px-4 py-3 text-gray-500 italic hidden lg:table-cell">
+                        <td className="px-4 py-3 text-gray-800">{v.translation}</td>
+                        <td className="px-4 py-3 text-gray-700 italic hidden lg:table-cell">
                           {v.example_sentence}
                         </td>
                         <td className="px-4 py-3 hidden md:table-cell">

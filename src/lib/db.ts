@@ -104,6 +104,9 @@ function initSchema(db: Database.Database) {
       review_count INTEGER NOT NULL DEFAULT 0,
       UNIQUE(target_type, target_id)
     );
+
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_vocab_chapter_word
+      ON vocabulary(chapter_id, word);
   `);
 }
 
@@ -112,6 +115,14 @@ export const sessions = {
   getAll: () => getDb().prepare("SELECT * FROM sessions ORDER BY date DESC").all(),
   getById: (id: string) =>
     getDb().prepare("SELECT * FROM sessions WHERE id = ?").get(id),
+  findByDateAndLecture: (date: string, lectureNumber: number | null) =>
+    lectureNumber != null
+      ? getDb()
+          .prepare("SELECT * FROM sessions WHERE date = ? AND lecture_number = ?")
+          .get(date, lectureNumber)
+      : getDb()
+          .prepare("SELECT * FROM sessions WHERE date = ? AND lecture_number IS NULL")
+          .get(date),
   create: (data: {
     id: string;
     date: string;
@@ -127,6 +138,8 @@ export const sessions = {
     getDb()
       .prepare("UPDATE sessions SET status = ? WHERE id = ?")
       .run(status, id),
+  delete: (id: string) =>
+    getDb().prepare("DELETE FROM sessions WHERE id = ?").run(id),
 };
 
 // Chapters
@@ -179,6 +192,12 @@ export const exercises = {
     getDb()
       .prepare("SELECT * FROM exercises WHERE chapter_id = ? ORDER BY created_at ASC")
       .all(chapterId),
+  getBySession: (sessionId: string) =>
+    getDb()
+      .prepare("SELECT id FROM exercises WHERE session_id = ?")
+      .all(sessionId) as { id: string }[],
+  deleteBySession: (sessionId: string) =>
+    getDb().prepare("DELETE FROM exercises WHERE session_id = ?").run(sessionId),
   getById: (id: string) =>
     getDb().prepare("SELECT * FROM exercises WHERE id = ?").get(id),
   create: (data: {
@@ -227,7 +246,7 @@ export const vocabulary = {
   }) =>
     getDb()
       .prepare(
-        "INSERT INTO vocabulary (id, chapter_id, word, article, plural, translation, example_sentence, part_of_speech, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        "INSERT OR IGNORE INTO vocabulary (id, chapter_id, word, article, plural, translation, example_sentence, part_of_speech, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
       )
       .run(
         data.id,
@@ -244,6 +263,11 @@ export const vocabulary = {
 
 // Attempts
 export const attempts = {
+  deleteByExerciseIds: (ids: string[]) => {
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => "?").join(",");
+    getDb().prepare(`DELETE FROM attempts WHERE exercise_id IN (${placeholders})`).run(...ids);
+  },
   getByExercise: (exerciseId: string) =>
     getDb()
       .prepare("SELECT * FROM attempts WHERE exercise_id = ? ORDER BY attempted_at DESC")
@@ -289,7 +313,13 @@ export const materials = {
   getBySession: (sessionId: string) =>
     getDb()
       .prepare("SELECT * FROM materials WHERE session_id = ? ORDER BY uploaded_at ASC")
-      .all(sessionId),
+      .all(sessionId) as { id: string; file_path: string; original_filename: string; file_type: string; processing_status: string; uploaded_at: string }[],
+  resetBySession: (sessionId: string) =>
+    getDb()
+      .prepare("UPDATE materials SET processing_status = 'pending' WHERE session_id = ?")
+      .run(sessionId),
+  deleteBySession: (sessionId: string) =>
+    getDb().prepare("DELETE FROM materials WHERE session_id = ?").run(sessionId),
   create: (data: {
     id: string;
     session_id: string;
@@ -310,6 +340,13 @@ export const materials = {
 
 // Review schedules
 export const reviewSchedules = {
+  deleteByExerciseIds: (ids: string[]) => {
+    if (ids.length === 0) return;
+    const placeholders = ids.map(() => "?").join(",");
+    getDb()
+      .prepare(`DELETE FROM review_schedules WHERE target_type = 'exercise' AND target_id IN (${placeholders})`)
+      .run(...ids);
+  },
   getDue: (now: string) =>
     getDb()
       .prepare(

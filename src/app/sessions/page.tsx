@@ -20,7 +20,7 @@ export default function SessionsPage() {
       </div>
 
       {all.length === 0 ? (
-        <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-12 text-center text-gray-500">
+        <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-12 text-center text-gray-600">
           <p className="mb-3">No sessions yet.</p>
           <Link href="/sessions/new" className="text-blue-600 hover:underline text-sm">
             Create your first session
@@ -40,7 +40,7 @@ export default function SessionsPage() {
                     {s.date}
                   </div>
                   {s.raw_notes && (
-                    <div className="text-sm text-gray-500 mt-1 line-clamp-1">
+                    <div className="text-sm text-gray-600 mt-1 line-clamp-1">
                       {s.raw_notes}
                     </div>
                   )}

@@ -39,16 +39,16 @@ export default function RootLayout({
           <Link href="/" className="font-bold text-lg tracking-tight text-blue-700">
             Deutschbook
           </Link>
-          <Link href="/sessions" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link href="/sessions" className="text-sm text-gray-700 hover:text-gray-900">
             Sessions
           </Link>
-          <Link href="/book" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link href="/book" className="text-sm text-gray-700 hover:text-gray-900">
             Book
           </Link>
-          <Link href="/quiz" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link href="/quiz" className="text-sm text-gray-700 hover:text-gray-900">
             Quiz
           </Link>
-          <Link href="/vocab" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link href="/vocab" className="text-sm text-gray-700 hover:text-gray-900">
             Vocabulary
           </Link>
         </nav>

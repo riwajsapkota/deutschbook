@@ -24,7 +24,7 @@ export default function Dashboard() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
-      <p className="text-gray-500 mb-8">Your German learning at a glance</p>
+      <p className="text-gray-600 mb-8">Your German learning at a glance</p>
 
       <div className="grid grid-cols-4 gap-4 mb-10">
         <StatCard label="Chapters" value={allChapters.length} />
@@ -104,7 +104,7 @@ export default function Dashboard() {
                         <HealthDot health={h} />
                         <span className="font-medium text-sm truncate">{c.title}</span>
                       </div>
-                      <span className="text-xs text-gray-400 shrink-0 ml-2">{c.level}</span>
+                      <span className="text-xs text-gray-600 shrink-0 ml-2">{c.level}</span>
                     </Link>
                   </li>
                 );
@@ -153,7 +153,7 @@ function StatCard({ label, value, accent = false, accentColor = "amber" }: {
   return (
     <div className={`bg-white border rounded-lg px-5 py-4 ${accent ? c.border : "border-gray-200"}`}>
       <div className={`text-2xl font-bold ${accent ? c.text : "text-gray-900"}`}>{value}</div>
-      <div className="text-sm text-gray-500 mt-1">{label}</div>
+      <div className="text-sm text-gray-600 mt-1">{label}</div>
     </div>
   );
 }
@@ -173,7 +173,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-dashed border-gray-300 rounded-lg px-4 py-6 text-sm text-gray-500 text-center">
+    <div className="bg-white border border-dashed border-gray-300 rounded-lg px-4 py-6 text-sm text-gray-600 text-center">
       {children}
     </div>
   );

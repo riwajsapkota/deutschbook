@@ -22,7 +22,7 @@ export async function processSession(sessionId: string): Promise<void> {
     }
 
     try {
-      materials.updateStatus(mat.id, "pending");
+      materials.updateStatus(mat.id, "processing");
 
       const text = await extractTextFromFile(mat.file_path);
       if (!text.trim()) {

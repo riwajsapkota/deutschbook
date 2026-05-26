@@ -52,6 +52,15 @@ export default function NewSessionPage() {
         }),
       });
 
+      if (res.status === 409) {
+        const body = await res.json();
+        const existingId = body.existing?.id;
+        if (existingId) {
+          router.push(`/sessions/${existingId}`);
+          return;
+        }
+        throw new Error("A session with this date and lecture number already exists.");
+      }
       if (!res.ok) throw new Error("Failed to create session");
       const session = await res.json();
 
@@ -133,12 +142,12 @@ export default function NewSessionPage() {
             }`}
           >
             <input {...getInputProps()} />
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               {isDragActive
                 ? "Drop files here..."
                 : "Drag & drop PDFs, Excel files, or audio here, or click to browse"}
             </p>
-            <p className="text-xs text-gray-400 mt-1">PDF, XLS, XLSX, CSV, TXT, HTML, MP3, M4A — Apple Notes exports (.html) supported</p>
+            <p className="text-xs text-gray-600 mt-1">PDF, XLS, XLSX, CSV, TXT, HTML, MP3, M4A — Apple Notes exports (.html) supported</p>
           </div>
 
           {files.length > 0 && (
@@ -152,7 +161,7 @@ export default function NewSessionPage() {
                   <button
                     type="button"
                     onClick={() => removeFile(i)}
-                    className="text-gray-400 hover:text-red-500 ml-2 shrink-0"
+                    className="text-gray-500 hover:text-red-500 ml-2 shrink-0"
                   >
                     ×
                   </button>

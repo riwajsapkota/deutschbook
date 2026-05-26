@@ -56,7 +56,6 @@ export async function extractTextFromFile(filePath: string): Promise<string> {
 }
 
 async function extractFromPdf(filePath: string): Promise<string> {
-  // pdf-parse doesn't have named exports; require() is the standard usage
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const pdfParse = require("pdf-parse");
   const buffer = fs.readFileSync(filePath);

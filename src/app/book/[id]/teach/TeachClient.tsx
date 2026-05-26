@@ -74,7 +74,7 @@ export default function TeachClient({ chapterId, chapterTitle, theory, exerciseC
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+      <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
         <Link href="/book" className="hover:underline">Book</Link>
         <span>/</span>
         <Link href={`/book/${chapterId}`} className="hover:underline">{chapterTitle}</Link>
@@ -83,12 +83,12 @@ export default function TeachClient({ chapterId, chapterTitle, theory, exerciseC
       </div>
 
       <h1 className="text-xl font-bold mb-1">{chapterTitle}</h1>
-      <p className="text-sm text-gray-500 mb-5">Step-by-step teaching mode</p>
+      <p className="text-sm text-gray-600 mb-5">Step-by-step teaching mode</p>
 
       {/* Progress bar */}
       {!isDone && (
         <div className="mb-6">
-          <div className="flex justify-between text-xs text-gray-400 mb-1">
+          <div className="flex justify-between text-xs text-gray-600 mb-1">
             <span>{current.heading}</span>
             <span>{step + 1} / {sections.length}</span>
           </div>
@@ -103,7 +103,7 @@ export default function TeachClient({ chapterId, chapterTitle, theory, exerciseC
         <div className="bg-white border border-green-200 rounded-lg px-6 py-10 text-center">
           <div className="text-3xl mb-3">✓</div>
           <h2 className="text-lg font-bold mb-2">You&apos;ve covered all sections of {chapterTitle}</h2>
-          <p className="text-sm text-gray-500 mb-6">Ready to put it into practice?</p>
+          <p className="text-sm text-gray-600 mb-6">Ready to put it into practice?</p>
           <div className="flex justify-center gap-3">
             {exerciseCount > 0 ? (
               <Link
@@ -198,7 +198,7 @@ export default function TeachClient({ chapterId, chapterTitle, theory, exerciseC
             ))}
             {asking && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-500 italic">
+                <div className="bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-700 italic">
                   Thinking...
                 </div>
               </div>

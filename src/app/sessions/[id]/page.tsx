@@ -28,6 +28,7 @@ export default function SessionDetailPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [actioning, setActioning] = useState(false);
 
   const fetchSession = useCallback(async () => {
     const res = await fetch(`/api/sessions/${id}`);
@@ -54,19 +55,41 @@ export default function SessionDetailPage() {
   const handleProcess = async () => {
     setProcessing(true);
     await fetch(`/api/sessions/${id}/process`, { method: "POST" });
-    // Start polling
     setSession((s) => s ? { ...s, status: "inbox" } : s);
     fetchSession();
   };
 
-  if (loading) return <div className="p-10 text-gray-500">Loading...</div>;
-  if (!session) return <div className="p-10 text-gray-500">Session not found.</div>;
+  const handleRetry = async () => {
+    setActioning(true);
+    const res = await fetch(`/api/sessions/${id}`, { method: "PATCH" });
+    if (res.ok) {
+      await fetchSession();
+    }
+    setActioning(false);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Delete this session and all its uploaded files? This cannot be undone.")) return;
+    setActioning(true);
+    const res = await fetch(`/api/sessions/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      router.push("/sessions");
+    } else {
+      const body = await res.json();
+      alert(body.error ?? "Could not delete session.");
+      setActioning(false);
+    }
+  };
+
+  if (loading) return <div className="p-10 text-gray-600">Loading...</div>;
+  if (!session) return <div className="p-10 text-gray-600">Session not found.</div>;
 
   const isInbox = session.status === "inbox";
+  const isPartial = session.status === "partially_processed";
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+      <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
         <Link href="/sessions" className="hover:underline">Sessions</Link>
         <span>/</span>
         <span>
@@ -83,15 +106,35 @@ export default function SessionDetailPage() {
           <StatusBadge status={session.status} className="mt-2" />
         </div>
 
-        {isInbox && session.materials.length > 0 && (
-          <button
-            onClick={handleProcess}
-            disabled={processing}
-            className="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
-          >
-            {processing ? "Processing..." : "Process with AI"}
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {isInbox && session.materials.length > 0 && (
+            <button
+              onClick={handleProcess}
+              disabled={processing || actioning}
+              className="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+            >
+              {processing ? "Processing..." : "Process with AI"}
+            </button>
+          )}
+          {isPartial && (
+            <button
+              onClick={handleRetry}
+              disabled={actioning}
+              className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors"
+            >
+              {actioning ? "Resetting..." : "Retry Processing"}
+            </button>
+          )}
+          {(isInbox || isPartial) && (
+            <button
+              onClick={handleDelete}
+              disabled={actioning}
+              className="border border-red-300 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
 
       {session.raw_notes && (
@@ -108,7 +151,7 @@ export default function SessionDetailPage() {
           Materials ({session.materials.length})
         </h2>
         {session.materials.length === 0 ? (
-          <p className="text-sm text-gray-500">No files uploaded for this session.</p>
+          <p className="text-sm text-gray-600">No files uploaded for this session.</p>
         ) : (
           <ul className="space-y-2">
             {session.materials.map((m) => (
@@ -120,7 +163,7 @@ export default function SessionDetailPage() {
                   <FileIcon type={m.file_type} />
                   <div>
                     <div className="text-sm font-medium">{m.original_filename}</div>
-                    <div className="text-xs text-gray-400 capitalize">{m.file_type}</div>
+                    <div className="text-xs text-gray-600 capitalize">{m.file_type}</div>
                   </div>
                 </div>
                 <ProcessingBadge status={m.processing_status} />
@@ -166,14 +209,16 @@ function StatusBadge({ status, className = "" }: { status: string; className?: s
 }
 
 function ProcessingBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    pending: "bg-gray-100 text-gray-600",
-    processed: "bg-green-100 text-green-700",
-    failed: "bg-red-100 text-red-700",
+  const styles: Record<string, { color: string; label: string }> = {
+    pending:    { color: "bg-gray-100 text-gray-700",   label: "uploaded" },
+    processing: { color: "bg-blue-100 text-blue-700",   label: "processing…" },
+    processed:  { color: "bg-green-100 text-green-700", label: "processed" },
+    failed:     { color: "bg-red-100 text-red-700",     label: "failed" },
   };
+  const { color, label } = styles[status] ?? { color: "bg-gray-100 text-gray-600", label: status };
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[status] ?? "bg-gray-100 text-gray-600"}`}>
-      {status}
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${color}`}>
+      {label}
     </span>
   );
 }

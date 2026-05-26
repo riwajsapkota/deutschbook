@@ -51,17 +51,17 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
             className={`px-4 py-2 text-sm font-medium capitalize border-b-2 transition-colors ${
               tab === t
                 ? "border-blue-600 text-blue-700"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                : "border-transparent text-gray-600 hover:text-gray-900"
             }`}
           >
             {t}
             {t === "exercises" && exercises.length > 0 && (
-              <span className="ml-1.5 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1.5 text-xs bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded-full">
                 {exercises.length}
               </span>
             )}
             {t === "vocabulary" && vocabulary.length > 0 && (
-              <span className="ml-1.5 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1.5 text-xs bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded-full">
                 {vocabulary.length}
               </span>
             )}
@@ -113,7 +113,7 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
               </ReactMarkdown>
             </div>
           ) : (
-            <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-10 text-center text-gray-500 text-sm">
+            <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-10 text-center text-gray-600 text-sm">
               No theory yet. Process a session with materials for this topic to generate it.
             </div>
           )}
@@ -124,7 +124,7 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
       {tab === "exercises" && (
         <div>
           {exercises.length === 0 ? (
-            <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-10 text-center text-gray-500 text-sm">
+            <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-10 text-center text-gray-600 text-sm">
               No exercises yet for this chapter.
             </div>
           ) : (
@@ -139,7 +139,7 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
                     >
                       <div className="min-w-0">
                         <div className="font-medium text-sm truncate">{ex.instruction}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">
+                        <div className="text-xs text-gray-600 mt-0.5">
                           {ex.items.length} item{ex.items.length !== 1 ? "s" : ""} · {ex.type.replace(/_/g, " ")}
                           {ex.source_file ? ` · ${ex.source_file}` : ""}
                         </div>
@@ -163,7 +163,7 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
       {tab === "vocabulary" && (
         <div>
           {vocabulary.length === 0 ? (
-            <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-10 text-center text-gray-500 text-sm">
+            <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-10 text-center text-gray-600 text-sm">
               No vocabulary for this chapter yet.
             </div>
           ) : (
@@ -171,21 +171,21 @@ export default function ChapterClient({ chapterId, theory, exercises, vocabulary
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="text-left px-4 py-2 font-medium text-gray-600">Word</th>
-                    <th className="text-left px-4 py-2 font-medium text-gray-600">Translation</th>
-                    <th className="text-left px-4 py-2 font-medium text-gray-600 hidden md:table-cell">Example</th>
+                    <th className="text-left px-4 py-2 font-medium text-gray-800">Word</th>
+                    <th className="text-left px-4 py-2 font-medium text-gray-800">Translation</th>
+                    <th className="text-left px-4 py-2 font-medium text-gray-800 hidden md:table-cell">Example</th>
                   </tr>
                 </thead>
                 <tbody>
                   {vocabulary.map((v, i) => (
                     <tr key={v.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                       <td className="px-4 py-3 font-medium">
-                        {v.article && <span className="text-gray-400 text-xs mr-1">{v.article}</span>}
+                        {v.article && <span className="text-gray-600 text-xs mr-1">{v.article}</span>}
                         {v.word}
-                        {v.plural && <span className="text-gray-400 text-xs ml-1">({v.plural})</span>}
+                        {v.plural && <span className="text-gray-600 text-xs ml-1">({v.plural})</span>}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{v.translation}</td>
-                      <td className="px-4 py-3 text-gray-500 italic hidden md:table-cell">{v.example_sentence}</td>
+                      <td className="px-4 py-3 text-gray-800">{v.translation}</td>
+                      <td className="px-4 py-3 text-gray-700 italic hidden md:table-cell">{v.example_sentence}</td>
                     </tr>
                   ))}
                 </tbody>

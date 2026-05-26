@@ -119,7 +119,7 @@ export default function QuizClient() {
   // ── Loading ──
   if (phase === "loading") {
     return (
-      <div className="max-w-2xl mx-auto px-6 py-16 text-center text-gray-500">
+      <div className="max-w-2xl mx-auto px-6 py-16 text-center text-gray-600">
         Loading due items...
       </div>
     );
@@ -130,7 +130,7 @@ export default function QuizClient() {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 text-center">
         <h1 className="text-2xl font-bold mb-2">Quiz</h1>
-        <p className="text-gray-500 mb-8">
+        <p className="text-gray-600 mb-8">
           {exercises.length} exercise{exercises.length !== 1 ? "s" : ""} due for review
         </p>
         <div className="mb-8 space-y-2">
@@ -138,13 +138,13 @@ export default function QuizClient() {
             <div key={ex.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm text-left">
               <div>
                 <span className="font-medium">{ex.chapter_title}</span>
-                <span className="text-gray-400 ml-2 text-xs">{ex.instruction.slice(0, 50)}{ex.instruction.length > 50 ? "…" : ""}</span>
+                <span className="text-gray-600 ml-2 text-xs">{ex.instruction.slice(0, 50)}{ex.instruction.length > 50 ? "…" : ""}</span>
               </div>
-              <span className="text-xs text-gray-400 shrink-0 ml-2">{ex.items.length} items</span>
+              <span className="text-xs text-gray-600 shrink-0 ml-2">{ex.items.length} items</span>
             </div>
           ))}
           {exercises.length > 5 && (
-            <p className="text-xs text-gray-400">and {exercises.length - 5} more...</p>
+            <p className="text-xs text-gray-600">and {exercises.length - 5} more...</p>
           )}
         </div>
         <button
@@ -163,7 +163,7 @@ export default function QuizClient() {
       return (
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <h1 className="text-2xl font-bold mb-2">Nothing due</h1>
-          <p className="text-gray-500 mb-6">All caught up. Come back later when items are due for review.</p>
+          <p className="text-gray-600 mb-6">All caught up. Come back later when items are due for review.</p>
           <Link href="/" className="text-blue-600 hover:underline text-sm">Back to dashboard</Link>
         </div>
       );
@@ -184,13 +184,13 @@ export default function QuizClient() {
     return (
       <div className="max-w-2xl mx-auto px-6 py-10">
         <h1 className="text-2xl font-bold mb-1">Quiz complete</h1>
-        <p className="text-gray-500 mb-6">You reviewed {exercises.length} exercise{exercises.length !== 1 ? "s" : ""}.</p>
+        <p className="text-gray-600 mb-6">You reviewed {exercises.length} exercise{exercises.length !== 1 ? "s" : ""}.</p>
 
         <div className="bg-white border border-gray-200 rounded-lg px-6 py-5 mb-6">
           <div className={`text-3xl font-bold mb-1 ${overallPct >= 70 ? "text-green-600" : "text-amber-600"}`}>
             {overallPct}%
           </div>
-          <p className="text-sm text-gray-500">{totalCorrect} of {totalItems} correct</p>
+          <p className="text-sm text-gray-700">{totalCorrect} of {totalItems} correct</p>
         </div>
 
         <h2 className="font-semibold mb-3">By chapter</h2>
@@ -233,17 +233,17 @@ export default function QuizClient() {
             style={{ width: `${((index) / exercises.length) * 100}%` }}
           />
         </div>
-        <span className="text-xs text-gray-500 shrink-0">{index + 1} / {exercises.length}</span>
+        <span className="text-xs text-gray-600 shrink-0">{index + 1} / {exercises.length}</span>
       </div>
 
       {/* Chapter label */}
       <div className="flex items-center gap-2 mb-4">
         <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">{current.chapter_title}</span>
-        <span className="text-xs text-gray-400">{current.level}</span>
+        <span className="text-xs text-gray-600">{current.level}</span>
       </div>
 
       <h2 className="text-lg font-bold mb-1">{current.instruction}</h2>
-      <p className="text-xs text-gray-400 mb-6 capitalize">{current.type.replace(/_/g, " ")} · {current.difficulty}</p>
+      <p className="text-xs text-gray-600 mb-6 capitalize">{current.type.replace(/_/g, " ")} · {current.difficulty}</p>
 
       {/* Score banner */}
       {phase === "reviewing" && (
@@ -296,7 +296,7 @@ export default function QuizClient() {
             ))}
           </div>
           {wrongCount > 0 && (
-            <p className="text-xs text-gray-400 mt-2">{wrongCount} wrong answer{wrongCount !== 1 ? "s" : ""}</p>
+            <p className="text-xs text-gray-600 mt-2">{wrongCount} wrong answer{wrongCount !== 1 ? "s" : ""}</p>
           )}
         </div>
       )}
@@ -322,7 +322,7 @@ function QuizItem({
   return (
     <div className={`border rounded-lg px-4 py-3 transition-colors ${border}`}>
       <div className="flex gap-2 items-start mb-2">
-        <span className="text-xs font-semibold text-gray-400 shrink-0 mt-0.5">{index}.</span>
+        <span className="text-xs font-semibold text-gray-600 shrink-0 mt-0.5">{index}.</span>
         <p className="text-sm text-gray-800">{item.prompt}</p>
       </div>
 
@@ -350,7 +350,7 @@ function QuizItem({
         <div className="mt-2 ml-4 text-sm">
           <span className="text-red-600">Correct: </span>
           <span className="font-medium">{item.correct_answer}</span>
-          {item.explanation && <p className="text-xs text-gray-500 mt-0.5">{item.explanation}</p>}
+          {item.explanation && <p className="text-xs text-gray-700 mt-0.5">{item.explanation}</p>}
         </div>
       )}
     </div>

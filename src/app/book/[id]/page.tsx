@@ -41,7 +41,7 @@ export default async function ChapterPage({ params }: PageProps) {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+      <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
         <Link href="/book" className="hover:underline">Book</Link>
         <span>/</span>
         <span>{chapter.title}</span>
