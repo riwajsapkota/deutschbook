@@ -29,6 +29,9 @@ export default function SessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [actioning, setActioning] = useState(false);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
 
   const fetchSession = useCallback(async () => {
     const res = await fetch(`/api/sessions/${id}`);
@@ -69,10 +72,21 @@ export default function SessionDetailPage() {
       setProcessing(true);
       await fetch(`/api/sessions/${id}/process`, { method: "POST" });
       fetchSession();
-      setProcessing(false);
     } else {
       setActioning(false);
     }
+  };
+
+  const handleSaveNotes = async () => {
+    setSavingNotes(true);
+    await fetch(`/api/sessions/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ raw_notes: notesValue || null }),
+    });
+    await fetchSession();
+    setSavingNotes(false);
+    setEditingNotes(false);
   };
 
   const handleDelete = async () => {
@@ -88,8 +102,8 @@ export default function SessionDetailPage() {
     }
   };
 
-  if (loading) return <div className="p-10 text-gray-600">Loading...</div>;
-  if (!session) return <div className="p-10 text-gray-600">Session not found.</div>;
+  if (loading) return <div className="p-10 text-slate-600">Loading...</div>;
+  if (!session) return <div className="p-10 text-slate-600">Session not found.</div>;
 
   const isInbox = session.status === "inbox";
   const isPartial = session.status === "partially_processed";
@@ -97,7 +111,7 @@ export default function SessionDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-      <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+      <div className="flex items-center gap-2 text-sm text-slate-600 mb-6">
         <Link href="/sessions" className="hover:underline">Sessions</Link>
         <span>/</span>
         <span>
@@ -145,33 +159,71 @@ export default function SessionDetailPage() {
         </div>
       </div>
 
-      {session.raw_notes && (
-        <section className="mb-6">
-          <h2 className="font-semibold mb-2">Notes</h2>
-          <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-700 whitespace-pre-wrap">
+      <section className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-semibold">Notes</h2>
+          {!editingNotes && (
+            <button
+              onClick={() => { setNotesValue(session.raw_notes ?? ""); setEditingNotes(true); }}
+              className="text-xs text-blue-600 hover:underline"
+            >
+              {session.raw_notes ? "Edit" : "+ Add notes"}
+            </button>
+          )}
+        </div>
+        {editingNotes ? (
+          <div className="space-y-2">
+            <textarea
+              value={notesValue}
+              onChange={(e) => setNotesValue(e.target.value)}
+              rows={5}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Add your notes here..."
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveNotes}
+                disabled={savingNotes}
+                className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                {savingNotes ? "Saving..." : "Save"}
+              </button>
+              <button
+                onClick={() => setEditingNotes(false)}
+                className="bg-white border border-slate-300 text-slate-700 px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : session.raw_notes ? (
+          <div className="bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-700 whitespace-pre-wrap">
             {session.raw_notes}
           </div>
-        </section>
-      )}
+        ) : (
+          <p className="text-sm text-slate-500 italic">No notes yet.</p>
+        )}
+      </section>
 
       <section>
         <h2 className="font-semibold mb-3">
           Materials ({session.materials.length})
         </h2>
         {session.materials.length === 0 ? (
-          <p className="text-sm text-gray-600">No files uploaded for this session.</p>
+          <p className="text-sm text-slate-600">No files uploaded for this session.</p>
         ) : (
           <ul className="space-y-2">
             {session.materials.map((m) => (
               <li
                 key={m.id}
-                className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3"
+                className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <FileIcon type={m.file_type} />
                   <div>
                     <div className="text-sm font-medium">{m.original_filename}</div>
-                    <div className="text-xs text-gray-600 capitalize">{m.file_type}</div>
+                    <div className="text-xs text-slate-500 capitalize">{m.file_type}</div>
                   </div>
                 </div>
                 <ProcessingBadge status={m.processing_status} />
@@ -210,7 +262,7 @@ function StatusBadge({ status, className = "" }: { status: string; className?: s
     partially_processed: "bg-orange-100 text-orange-700",
   };
   return (
-    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${colors[status] ?? "bg-gray-100 text-gray-600"} ${className}`}>
+    <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${colors[status] ?? "bg-slate-100 text-slate-600"} ${className}`}>
       {status.replace(/_/g, " ")}
     </span>
   );
@@ -218,12 +270,12 @@ function StatusBadge({ status, className = "" }: { status: string; className?: s
 
 function ProcessingBadge({ status }: { status: string }) {
   const styles: Record<string, { color: string; label: string }> = {
-    pending:    { color: "bg-gray-100 text-gray-700",   label: "uploaded" },
+    pending:    { color: "bg-slate-100 text-slate-700",   label: "uploaded" },
     processing: { color: "bg-blue-100 text-blue-700",   label: "processing…" },
     processed:  { color: "bg-green-100 text-green-700", label: "processed" },
     failed:     { color: "bg-red-100 text-red-700",     label: "failed" },
   };
-  const { color, label } = styles[status] ?? { color: "bg-gray-100 text-gray-600", label: status };
+  const { color, label } = styles[status] ?? { color: "bg-slate-100 text-slate-600", label: status };
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${color}`}>
       {label}
