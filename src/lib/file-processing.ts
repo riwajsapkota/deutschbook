@@ -65,7 +65,37 @@ async function extractFromPdf(filePath: string): Promise<string> {
   const pdfParse = require("pdf-parse");
   const buffer = fs.readFileSync(filePath);
   const data = await pdfParse(buffer);
-  return data.text as string;
+  const text = data.text as string;
+  if (text.trim()) return text;
+  // Scanned PDF with no text layer — fall back to Claude Vision OCR
+  return extractFromPdfViaVision(filePath);
+}
+
+async function extractFromPdfViaVision(filePath: string): Promise<string> {
+  if (process.env.MOCK_AI === "true") return "[Mock OCR text for scanned PDF]";
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Anthropic = require("@anthropic-ai/sdk");
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const buffer = fs.readFileSync(filePath);
+  const base64 = buffer.toString("base64");
+  const response = await client.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 4096,
+    messages: [{
+      role: "user",
+      content: [
+        {
+          type: "document",
+          source: { type: "base64", media_type: "application/pdf", data: base64 },
+        },
+        {
+          type: "text",
+          text: "Extract all text from this document verbatim, preserving structure and layout. Return only the extracted text, nothing else.",
+        },
+      ],
+    }],
+  });
+  return response.content[0].type === "text" ? response.content[0].text : "";
 }
 
 async function extractFromWord(filePath: string): Promise<string> {
@@ -77,7 +107,8 @@ async function extractFromWord(filePath: string): Promise<string> {
 
 async function extractFromExcel(filePath: string): Promise<string> {
   const XLSX = await import("xlsx");
-  const workbook = XLSX.readFile(filePath);
+  const buffer = fs.readFileSync(filePath);
+  const workbook = XLSX.read(buffer, { type: "buffer" });
   const lines: string[] = [];
 
   for (const sheetName of workbook.SheetNames) {
