@@ -17,7 +17,7 @@ export async function generateTheory(
     : "There is no existing content for this chapter yet.";
 
   const message = await client.messages.create({
-    model: "claude-opus-4-7",
+    model: "claude-sonnet-4-6",
     max_tokens: 3000,
     system: `You are writing a chapter in a personal German grammar workbook for a ${level} learner.
 If the source material contains the teacher's explanations, rules, or notes: extract and preserve them faithfully — format into clean markdown but do not add content beyond what is in the source.

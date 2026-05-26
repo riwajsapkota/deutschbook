@@ -18,7 +18,7 @@ export async function convertExercises(
 ): Promise<ConvertedExercise[]> {
   if (process.env.MOCK_AI === "true") return mockExercises;
   const message = await client.messages.create({
-    model: "claude-opus-4-7",
+    model: "claude-sonnet-4-6",
     max_tokens: 16384,
     system: `You are converting raw German exercise text into structured interactive exercises for a B1/B2 learner.
 Always respond with valid JSON only, no extra text.`,
