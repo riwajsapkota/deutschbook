@@ -285,6 +285,34 @@ export const vocabulary = {
         data.part_of_speech ?? "noun",
         JSON.stringify(data.tags ?? [])
       ),
+  update: (
+    id: string,
+    data: {
+      word?: string;
+      article?: string | null;
+      plural?: string | null;
+      translation?: string;
+      example_sentence?: string;
+      part_of_speech?: string;
+      tags?: string[];
+    }
+  ) => {
+    const fields: string[] = [];
+    const values: unknown[] = [];
+    if (data.word !== undefined) { fields.push("word = ?"); values.push(data.word); }
+    if ("article" in data) { fields.push("article = ?"); values.push(data.article ?? null); }
+    if ("plural" in data) { fields.push("plural = ?"); values.push(data.plural ?? null); }
+    if (data.translation !== undefined) { fields.push("translation = ?"); values.push(data.translation); }
+    if (data.example_sentence !== undefined) { fields.push("example_sentence = ?"); values.push(data.example_sentence); }
+    if (data.part_of_speech !== undefined) { fields.push("part_of_speech = ?"); values.push(data.part_of_speech); }
+    if (data.tags !== undefined) { fields.push("tags = ?"); values.push(JSON.stringify(data.tags)); }
+    if (fields.length === 0) return;
+    values.push(id);
+    getDb().prepare(`UPDATE vocabulary SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+  },
+  delete: (id: string) => getDb().prepare("DELETE FROM vocabulary WHERE id = ?").run(id),
+  deleteByChapter: (chapterId: string) =>
+    getDb().prepare("DELETE FROM vocabulary WHERE chapter_id = ?").run(chapterId),
 };
 
 // Attempts
@@ -453,3 +481,38 @@ export const reviewSchedules = {
       )
       .get(now) as { count: number }).count,
 };
+
+export function search(query: string) {
+  const db = getDb();
+  const q = `%${query.toLowerCase()}%`;
+
+  const matchedChapters = db
+    .prepare(
+      `SELECT id, title, summary, level, category
+       FROM chapters
+       WHERE lower(title) LIKE ? OR lower(summary) LIKE ?
+       LIMIT 5`
+    )
+    .all(q, q);
+
+  const matchedVocab = db
+    .prepare(
+      `SELECT id, word, article, translation, part_of_speech, chapter_id
+       FROM vocabulary
+       WHERE lower(word) LIKE ? OR lower(translation) LIKE ?
+       LIMIT 8`
+    )
+    .all(q, q);
+
+  const matchedExercises = db
+    .prepare(
+      `SELECT e.id, e.instruction, e.type, e.chapter_id, c.title AS chapter_title
+       FROM exercises e
+       JOIN chapters c ON c.id = e.chapter_id
+       WHERE lower(e.instruction) LIKE ?
+       LIMIT 5`
+    )
+    .all(q);
+
+  return { chapters: matchedChapters, vocab: matchedVocab, exercises: matchedExercises };
+}
