@@ -90,7 +90,7 @@ export default function NewSessionPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Date <span className="text-red-500">*</span>
             </label>
             <input
@@ -98,11 +98,11 @@ export default function NewSessionPage() {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1">
               Lecture Number
             </label>
             <input
@@ -111,13 +111,13 @@ export default function NewSessionPage() {
               onChange={(e) => setLectureNumber(e.target.value)}
               placeholder="e.g. 9"
               min="1"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Notes
           </label>
           <textarea
@@ -125,12 +125,12 @@ export default function NewSessionPage() {
             onChange={(e) => setNotes(e.target.value)}
             placeholder="We practiced Relativsätze, also reviewed Passiv from last time..."
             rows={4}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1">
             Materials
           </label>
           <div
@@ -138,16 +138,16 @@ export default function NewSessionPage() {
             className={`border-2 border-dashed rounded-lg px-6 py-8 text-center cursor-pointer transition-colors ${
               isDragActive
                 ? "border-blue-400 bg-blue-50"
-                : "border-gray-300 hover:border-gray-400"
+                : "border-slate-300 hover:border-slate-400"
             }`}
           >
             <input {...getInputProps()} />
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-600">
               {isDragActive
                 ? "Drop files here..."
                 : "Drag & drop PDFs, Excel files, or audio here, or click to browse"}
             </p>
-            <p className="text-xs text-gray-600 mt-1">PDF, XLS, XLSX, CSV, TXT, HTML, MP3, M4A — Apple Notes exports (.html) supported</p>
+            <p className="text-xs text-slate-600 mt-1">PDF, XLS, XLSX, CSV, TXT, HTML, MP3, M4A — Apple Notes exports (.html) supported</p>
           </div>
 
           {files.length > 0 && (
@@ -155,13 +155,13 @@ export default function NewSessionPage() {
               {files.map((f, i) => (
                 <li
                   key={i}
-                  className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm"
+                  className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded px-3 py-2 text-sm"
                 >
-                  <span className="truncate text-gray-700">{f.name}</span>
+                  <span className="truncate text-slate-700">{f.name}</span>
                   <button
                     type="button"
                     onClick={() => removeFile(i)}
-                    className="text-gray-500 hover:text-red-500 ml-2 shrink-0"
+                    className="text-slate-500 hover:text-red-500 ml-2 shrink-0"
                   >
                     ×
                   </button>
@@ -188,7 +188,7 @@ export default function NewSessionPage() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="bg-white border border-slate-300 text-slate-700 px-6 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>

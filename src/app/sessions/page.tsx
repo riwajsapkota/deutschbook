@@ -4,8 +4,8 @@ import { Session } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-export default function SessionsPage() {
-  const all = sessionsDb.getAll() as Session[];
+export default async function SessionsPage() {
+  const all = (await sessionsDb.getAll()) as Session[];
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
@@ -20,7 +20,7 @@ export default function SessionsPage() {
       </div>
 
       {all.length === 0 ? (
-        <div className="bg-white border border-dashed border-gray-300 rounded-lg px-6 py-12 text-center text-gray-600">
+        <div className="bg-white border border-dashed border-slate-300 rounded-lg px-6 py-12 text-center text-slate-600">
           <p className="mb-3">No sessions yet.</p>
           <Link href="/sessions/new" className="text-blue-600 hover:underline text-sm">
             Create your first session
@@ -32,7 +32,7 @@ export default function SessionsPage() {
             <li key={s.id}>
               <Link
                 href={`/sessions/${s.id}`}
-                className="flex items-start justify-between bg-white border border-gray-200 rounded-lg px-5 py-4 hover:border-blue-300 transition-colors"
+                className="flex items-start justify-between bg-white border border-slate-200 rounded-lg px-5 py-4 hover:border-blue-300 transition-colors"
               >
                 <div>
                   <div className="font-medium text-blue-900">
@@ -40,7 +40,7 @@ export default function SessionsPage() {
                     {s.date}
                   </div>
                   {s.raw_notes && (
-                    <div className="text-sm text-gray-600 mt-1 line-clamp-1">
+                    <div className="text-sm text-slate-600 mt-1 line-clamp-1">
                       {s.raw_notes}
                     </div>
                   )}
@@ -62,7 +62,7 @@ function StatusBadge({ status }: { status: string }) {
     partially_processed: "bg-orange-100 text-orange-700",
   };
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ml-3 ${colors[status] ?? "bg-gray-100 text-gray-600"}`}>
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ml-3 ${colors[status] ?? "bg-slate-100 text-slate-600"}`}>
       {status.replace(/_/g, " ")}
     </span>
   );

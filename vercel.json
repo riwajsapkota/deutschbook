@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "src/app/api/sessions/[id]/process/route.ts": { "maxDuration": 300 },
+    "src/app/api/sessions/[id]/materials/[materialId]/process/route.ts": { "maxDuration": 300 }
+  }
+}

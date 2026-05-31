@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Exercise, ExerciseItem, SelfAssessment } from "@/types";
 
@@ -19,7 +19,13 @@ const SELF_ASSESSMENTS: { value: SelfAssessment; label: string; color: string }[
   { value: "forgotten", label: "Forgotten", color: "bg-red-500 hover:bg-red-600 text-white" },
 ];
 
-const needsAiEval = (type: string) => type === "translate" || type === "free_response";
+const needsAiEval = (type: string, items?: ExerciseItem[]) => {
+  if (type === "translate" || type === "free_response") return true;
+  if (type === "fill_in_blank" && items) {
+    return items.some((item) => item.correct_answer.trim().split(/\s+/).length > 4);
+  }
+  return false;
+};
 
 export default function ExerciseClient({ exercise, chapterId }: Props) {
   const [answers, setAnswers] = useState<AnswerMap>({});
@@ -41,7 +47,7 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
     let correct = 0;
 
     for (const item of exercise.items) {
-      if (needsAiEval(exercise.type)) {
+      if (needsAiEval(exercise.type, exercise.items)) {
         // Will be evaluated by AI — optimistically mark pending
         newResults[item.id] = false;
       } else if (exercise.type === "reorder") {
@@ -63,8 +69,8 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
     setResults(newResults);
     setSubmitted(true);
 
-    // AI evaluation for translate/free_response
-    if (needsAiEval(exercise.type)) {
+    // AI evaluation for translate/free_response and sentence-length fill_in_blank
+    if (needsAiEval(exercise.type, exercise.items)) {
       setEvaluating(true);
       let aiCorrect = 0;
       const feedbackMap: AiFeedbackMap = {};
@@ -137,9 +143,24 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
   const correctCount = Math.round(score * exercise.items.length);
   const wrongCount = exercise.items.length - correctCount;
 
+  const wordBank = useMemo(() => {
+    if (exercise.type !== "fill_in_blank") return [];
+    const words: string[] = [];
+    for (const item of exercise.items) {
+      if (item.blanks && item.blanks.length > 0) {
+        item.blanks.forEach((b) => words.push(b.correct_answer));
+      } else if (item.correct_answer) {
+        words.push(item.correct_answer);
+      }
+    }
+    const unique = [...new Set(words)];
+    // Stable shuffle using character codes so it's consistent across renders
+    return unique.sort((a, b) => (a.charCodeAt(0) * 31 + a.length) % 7 - (b.charCodeAt(0) * 31 + b.length) % 7);
+  }, [exercise]);
+
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+      <div className="flex items-center gap-2 text-sm text-slate-600 mb-6">
         <Link href="/book" className="hover:underline">Book</Link>
         <span>/</span>
         <Link href={`/book/${chapterId}`} className="hover:underline">Chapter</Link>
@@ -148,7 +169,7 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
       </div>
 
       <h1 className="text-xl font-bold mb-1">{exercise.instruction}</h1>
-      <p className="text-sm text-gray-600 mb-6 capitalize">
+      <p className="text-sm text-slate-600 mb-6 capitalize">
         {exercise.type.replace(/_/g, " ")} · {exercise.difficulty}
         {exercise.source_file && <span> · {exercise.source_file}</span>}
       </p>
@@ -158,13 +179,26 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
           <div className={`text-lg font-bold ${scorePercent >= 70 ? "text-green-700" : "text-amber-700"}`}>
             {scorePercent}% — {correctCount}/{exercise.items.length} correct
           </div>
-          {wrongCount > 0 && <p className="text-sm text-gray-600 mt-1">{wrongCount} wrong</p>}
+          {wrongCount > 0 && <p className="text-sm text-slate-600 mt-1">{wrongCount} wrong</p>}
         </div>
       )}
 
       {evaluating && (
         <div className="mb-6 p-4 rounded-lg border border-blue-200 bg-blue-50 text-sm text-blue-700">
           Evaluating your answers with AI...
+        </div>
+      )}
+
+      {!submitted && wordBank.length > 0 && (
+        <div className="mb-5 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+          <p className="text-xs font-semibold text-indigo-700 mb-2 uppercase tracking-wide">Word bank</p>
+          <div className="flex flex-wrap gap-1.5">
+            {wordBank.map((word) => (
+              <span key={word} className="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded text-sm font-medium">
+                {word}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 
@@ -175,6 +209,7 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
             item={item}
             index={idx + 1}
             type={exercise.type}
+            usesAiEval={needsAiEval(exercise.type, exercise.items)}
             answer={answers[item.id] ?? ""}
             onChange={(v) => handleAnswer(item.id, v)}
             submitted={submitted}
@@ -197,7 +232,7 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
           <>
             {!saved && !evaluating && (
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">How did that feel?</p>
+                <p className="text-sm font-medium text-slate-700 mb-2">How did that feel?</p>
                 <div className="flex gap-2">
                   {SELF_ASSESSMENTS.map((a) => (
                     <button
@@ -218,12 +253,12 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
               </p>
             )}
             <div className="flex gap-3">
-              {wrongCount > 0 && !needsAiEval(exercise.type) && (
+              {wrongCount > 0 && !needsAiEval(exercise.type, exercise.items) && (
                 <button onClick={handleRetry} className="bg-amber-500 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
                   Retry wrong ({wrongCount})
                 </button>
               )}
-              <Link href={`/book/${chapterId}`} className="bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+              <Link href={`/book/${chapterId}`} className="bg-white border border-slate-300 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
                 Back to chapter
               </Link>
             </div>
@@ -235,11 +270,12 @@ export default function ExerciseClient({ exercise, chapterId }: Props) {
 }
 
 function ExerciseItemView({
-  item, index, type, answer, onChange, submitted, correct, aiFeedback,
+  item, index, type, usesAiEval, answer, onChange, submitted, correct, aiFeedback,
 }: {
   item: ExerciseItem;
   index: number;
   type: string;
+  usesAiEval: boolean;
   answer: string;
   onChange: (v: string) => void;
   submitted: boolean;
@@ -248,12 +284,12 @@ function ExerciseItemView({
 }) {
   const borderColor = submitted
     ? correct ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"
-    : "border-gray-200 bg-white";
+    : "border-slate-200 bg-white";
 
   return (
     <div className={`border rounded-lg px-5 py-4 transition-colors ${borderColor}`}>
       <div className="flex gap-3 items-start mb-3">
-        <span className="text-xs font-semibold text-gray-600 mt-0.5 shrink-0">{index}.</span>
+        <span className="text-xs font-semibold text-slate-600 mt-0.5 shrink-0">{index}.</span>
         <p className="text-sm text-blue-900 font-medium">{item.prompt}</p>
       </div>
 
@@ -268,14 +304,14 @@ function ExerciseItemView({
           onChange={(e) => onChange(e.target.value)}
           disabled={submitted}
           placeholder={type === "translate" ? "Your translation..." : type === "free_response" ? "Write your answer in German..." : "Your answer..."}
-          className={`ml-5 w-[calc(100%-1.25rem)] border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${submitted ? "bg-gray-50 cursor-not-allowed border-gray-200" : "bg-white border-gray-300"}`}
+          className={`ml-5 w-[calc(100%-1.25rem)] border rounded px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${submitted ? "bg-slate-50 cursor-not-allowed border-slate-200" : "bg-white border-slate-300"}`}
         />
       )}
 
-      {submitted && !correct && !aiFeedback && type !== "translate" && type !== "free_response" && (
+      {submitted && !correct && !aiFeedback && !usesAiEval && (
         <div className="mt-3 ml-5 text-sm space-y-1">
-          <p><span className="text-red-600">Correct: </span><span className="font-medium">{item.correct_answer}</span></p>
-          {item.explanation && <p className="text-gray-700 text-xs">{item.explanation}</p>}
+          <p><span className="text-red-600">Correct: </span><span className="font-medium text-slate-900">{item.correct_answer}</span></p>
+          {item.explanation && <p className="text-slate-700 text-xs">{item.explanation}</p>}
         </div>
       )}
 
@@ -284,9 +320,9 @@ function ExerciseItemView({
           <p className={`font-medium mb-1 ${correct ? "text-green-700" : "text-red-700"}`}>
             {correct ? "Correct!" : "Needs work"}
           </p>
-          <p className="text-gray-700">{aiFeedback.feedback}</p>
+          <p className="text-slate-700">{aiFeedback.feedback}</p>
           {aiFeedback.corrected && (
-            <p className="mt-1 text-gray-600"><span className="font-medium">Corrected: </span>{aiFeedback.corrected}</p>
+            <p className="mt-1 text-slate-600"><span className="font-medium">Corrected: </span>{aiFeedback.corrected}</p>
           )}
         </div>
       )}
@@ -306,7 +342,7 @@ function MultipleChoiceInput({ item, answer, onChange, submitted }: {
       {item.options.map((opt) => (
         <label key={opt} className="flex items-center gap-2 cursor-pointer">
           <input type="radio" name={item.id} value={opt} checked={answer === opt} onChange={() => onChange(opt)} disabled={submitted} className="accent-blue-600" />
-          <span className={`text-sm ${submitted && opt === item.correct_answer ? "font-semibold text-green-700" : ""}`}>{opt}</span>
+          <span className={`text-sm ${submitted && opt === item.correct_answer ? "font-semibold text-green-700" : "text-slate-900"}`}>{opt}</span>
         </label>
       ))}
     </div>
@@ -341,8 +377,8 @@ function ReorderInput({ item, answer, onChange, submitted }: {
   return (
     <div className="ml-5 space-y-3">
       {/* Sentence builder */}
-      <div className="min-h-10 border border-gray-300 rounded-lg px-3 py-2 flex flex-wrap gap-1.5 bg-white">
-        {placed.length === 0 && <span className="text-sm text-gray-600">Click words below to build the sentence...</span>}
+      <div className="min-h-10 border border-slate-300 rounded-lg px-3 py-2 flex flex-wrap gap-1.5 bg-white">
+        {placed.length === 0 && <span className="text-sm text-slate-600">Click words below to build the sentence...</span>}
         {placed.map((word, i) => (
           <button
             key={i}
@@ -361,7 +397,7 @@ function ReorderInput({ item, answer, onChange, submitted }: {
             <button
               key={i}
               onClick={() => addWord(word)}
-              className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-sm hover:bg-gray-200 transition-colors"
+              className="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded text-sm hover:bg-indigo-200 transition-colors"
             >
               {word}
             </button>

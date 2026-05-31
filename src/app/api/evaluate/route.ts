@@ -15,19 +15,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "exercise_id, item_id, and user_answer are required" }, { status: 400 });
   }
 
-  const raw = exercises.getById(exercise_id) as (Omit<Exercise, "items"> & { items: string }) | undefined;
+  const raw = (await exercises.getById(exercise_id)) as (Omit<Exercise, "items"> & { items: string }) | undefined;
   if (!raw) return NextResponse.json({ error: "Exercise not found" }, { status: 404 });
 
   const exercise: Exercise = { ...raw, items: typeof raw.items === "string" ? JSON.parse(raw.items) : raw.items };
   const item = exercise.items.find((i: ExerciseItem) => i.id === item_id);
   if (!item) return NextResponse.json({ error: "Item not found" }, { status: 404 });
 
-  if (exercise.type !== "translate" && exercise.type !== "free_response") {
-    return NextResponse.json({ error: "AI evaluation only applies to translate and free_response types" }, { status: 400 });
-  }
-
   const result = await evaluateAnswer(
-    exercise.type,
+    exercise.type === "translate" ? "translate" : "free_response",
     item.prompt,
     item.correct_answer,
     user_answer,

@@ -12,11 +12,11 @@ interface PageProps {
 
 export default async function ChapterPage({ params }: PageProps) {
   const { id } = await params;
-  const chapter = chaptersDb.getById(id) as Chapter | undefined;
+  const chapter = (await chaptersDb.getById(id)) as Chapter | undefined;
   if (!chapter) notFound();
 
-  const exs = exercisesDb.getByChapter(id) as (Omit<Exercise, "items"> & { items: string })[];
-  const vocab = vocabDb.getByChapter(id) as (Omit<VocabularyItem, "tags"> & { tags: string })[];
+  const exs = (await exercisesDb.getByChapter(id)) as (Omit<Exercise, "items"> & { items: string })[];
+  const vocab = (await vocabDb.getByChapter(id)) as (Omit<VocabularyItem, "tags"> & { tags: string })[];
 
   const exercises: Exercise[] = exs.map((e) => ({
     ...e,
@@ -30,18 +30,20 @@ export default async function ChapterPage({ params }: PageProps) {
 
   // Fetch latest attempt per exercise for completion status
   const latestAttempts = Object.fromEntries(
-    exercises.map((ex) => {
-      const latest = attemptsDb.getLatestByExercise(ex.id) as {
-        score: number;
-        self_assessment: string | null;
-      } | undefined;
-      return [ex.id, latest ?? null];
-    })
+    await Promise.all(
+      exercises.map(async (ex) => {
+        const latest = (await attemptsDb.getLatestByExercise(ex.id)) as {
+          score: number;
+          self_assessment: string | null;
+        } | undefined;
+        return [ex.id, latest ?? null] as const;
+      })
+    )
   );
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-      <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
+      <div className="flex items-center gap-2 text-sm text-slate-600 mb-6">
         <Link href="/book" className="hover:underline">Book</Link>
         <span>/</span>
         <span>{chapter.title}</span>
@@ -53,14 +55,14 @@ export default async function ChapterPage({ params }: PageProps) {
           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded capitalize">
             {chapter.category}
           </span>
-          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+          <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
             {chapter.level}
           </span>
         </div>
       </div>
 
       {chapter.summary && (
-        <p className="text-gray-600 mb-8">{chapter.summary}</p>
+        <p className="text-slate-600 mb-8">{chapter.summary}</p>
       )}
 
       <ChapterClient

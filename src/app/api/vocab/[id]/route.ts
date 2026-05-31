@@ -9,7 +9,7 @@ export async function PATCH(
   const body = await request.json();
   const { word, article, plural, translation, example_sentence, part_of_speech, tags } = body;
 
-  vocabulary.update(id, {
+  await vocabulary.update(id, {
     ...(word !== undefined && { word }),
     ...("article" in body && { article }),
     ...("plural" in body && { plural }),
@@ -27,6 +27,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  vocabulary.delete(id);
+  await vocabulary.delete(id);
   return NextResponse.json({ ok: true });
 }

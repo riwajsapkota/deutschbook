@@ -27,8 +27,10 @@ Always respond with valid JSON only, no extra text.`,
         role: "user",
         content: `Convert these German exercises about "${topicTitle}" into structured interactive format.
 
-For fill_in_blank: each item has a "prompt" with ___ marking blanks, and "blanks" array with correct answers.
+For fill_in_blank: each item has a "prompt" with ___ marking blanks, and "blanks" array with correct answers. Use ONLY for exercises where students fill in a single word or short phrase.
+For free_response: use for exercises where students must construct or write complete sentences (instructions like "Formulieren Sie", "Schreiben Sie", "Bilden Sie Sätze", "Ergänzen Sie den Satz vollständig"). Each item has a "prompt" and a "correct_answer" with a model sentence.
 For multiple_choice: each item has "prompt", "options" array, and "correct_answer".
+For translate: use for exercises that ask the student to translate a sentence between German and English.
 Use "explanation" to briefly explain why the answer is correct.
 
 Raw exercise text:

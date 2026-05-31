@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string; materialId: string }> }
 ) {
   const { id, materialId } = await params;
-  const session = sessions.getById(id);
+  const session = await sessions.getById(id);
   if (!session) return NextResponse.json({ error: "Session not found" }, { status: 404 });
 
   retryMaterial(id, materialId).catch((err) => {

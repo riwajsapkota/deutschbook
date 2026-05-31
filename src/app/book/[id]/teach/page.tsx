@@ -11,10 +11,10 @@ interface PageProps {
 
 export default async function TeachPage({ params }: PageProps) {
   const { id } = await params;
-  const chapter = chaptersDb.getById(id) as Chapter | undefined;
+  const chapter = (await chaptersDb.getById(id)) as Chapter | undefined;
   if (!chapter) notFound();
 
-  const exs = exercisesDb.getByChapter(id) as (Omit<Exercise, "items"> & { items: string })[];
+  const exs = (await exercisesDb.getByChapter(id)) as (Omit<Exercise, "items"> & { items: string })[];
   const exerciseCount = exs.length;
 
   return (

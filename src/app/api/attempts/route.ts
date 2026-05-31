@@ -17,16 +17,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "exercise_id, score, and answers are required" }, { status: 400 });
   }
 
-  const exercise = exercises.getById(exercise_id);
+  const exercise = await exercises.getById(exercise_id);
   if (!exercise) {
     return NextResponse.json({ error: "Exercise not found" }, { status: 404 });
   }
 
   const id = randomUUID();
-  attempts.create({ id, exercise_id, score, answers, self_assessment: self_assessment ?? null });
+  await attempts.create({ id, exercise_id, score, answers, self_assessment: self_assessment ?? null });
 
   // Update spaced repetition schedule
-  const existing = reviewSchedules.getByTarget("exercise", exercise_id) as {
+  const existing = (await reviewSchedules.getByTarget("exercise", exercise_id)) as {
     interval_days: number;
     ease_factor: number;
     review_count: number;
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const quality = toQuality(score, self_assessment ?? null);
   const next = sm2(current, quality);
 
-  reviewSchedules.upsert({
+  await reviewSchedules.upsert({
     id: randomUUID(),
     target_type: "exercise",
     target_id: exercise_id,

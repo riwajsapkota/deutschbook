@@ -9,6 +9,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ chapters: [], vocab: [], exercises: [] });
   }
 
-  const results = search(q);
+  const results = await search(q);
   return NextResponse.json(results);
 }

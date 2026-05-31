@@ -14,40 +14,41 @@ async function processMaterial(
   existingTitles: string[]
 ): Promise<boolean> {
   if (mat.file_type === "audio" || mat.file_type === "image") {
-    materials.updateStatus(mat.id, "processed");
+    await materials.updateStatus(mat.id, "processed");
     return true;
   }
 
   try {
-    materials.updateStatus(mat.id, "processing");
+    await materials.updateStatus(mat.id, "processing");
 
     const text = await extractTextFromFile(mat.file_path);
     if (!text.trim()) {
-      materials.updateStatus(mat.id, "processed");
+      await materials.updateStatus(mat.id, "processed");
       return true;
     }
 
     const classification = await classifyContent(text, existingTitles);
 
     for (const topic of classification.topics) {
-      let chapter = chapters.findByTitle(topic.title) as Chapter | undefined;
+      let chapter = (await chapters.findByTitle(topic.title)) as Chapter | undefined;
       if (!chapter) {
         const newId = randomUUID();
-        chapters.create({
+        await chapters.create({
           id: newId,
           title: topic.title,
           level: topic.level,
           category: topic.category,
         });
-        chapter = chapters.getById(newId) as Chapter;
+        chapter = (await chapters.getById(newId)) as Chapter;
         existingTitles.push(topic.title);
       }
 
       if (classification.hasExercises) {
+        await exercises.deleteByChapterAndFile(chapter.id, mat.original_filename);
         const converted = await convertExercises(topic.relevantText || text, topic.title);
         for (const ex of converted) {
           const exId = randomUUID();
-          exercises.create({
+          await exercises.create({
             id: exId,
             chapter_id: chapter.id,
             session_id: sessionId,
@@ -59,7 +60,7 @@ async function processMaterial(
           });
 
           const sched = initialSchedule();
-          reviewSchedules.upsert({
+          await reviewSchedules.upsert({
             id: randomUUID(),
             target_type: "exercise",
             target_id: exId,
@@ -78,7 +79,7 @@ async function processMaterial(
         sourceText,
         chapter.theory
       );
-      chapters.update(chapter.id, {
+      await chapters.update(chapter.id, {
         summary: theoryResult.summary,
         theory: theoryResult.theory,
       });
@@ -86,7 +87,7 @@ async function processMaterial(
       if (classification.hasVocabulary) {
         const vocab = await extractVocabulary(text, topic.title);
         for (const v of vocab) {
-          vocabulary.create({
+          await vocabulary.create({
             id: randomUUID(),
             chapter_id: chapter.id,
             word: v.word,
@@ -101,42 +102,42 @@ async function processMaterial(
       }
     }
 
-    materials.updateStatus(mat.id, "processed");
+    await materials.updateStatus(mat.id, "processed");
     return true;
   } catch (err) {
     console.error(`Failed to process material ${mat.id}:`, err);
-    materials.updateStatus(mat.id, "failed");
+    await materials.updateStatus(mat.id, "failed");
     return false;
   }
 }
 
-function updateSessionStatus(sessionId: string): void {
-  const allMats = materials.getBySession(sessionId);
+async function updateSessionStatus(sessionId: string): Promise<void> {
+  const allMats = await materials.getBySession(sessionId);
   const anyFailed = allMats.some(
     (m) => m.processing_status === "failed" || m.processing_status === "pending"
   );
-  sessions.updateStatus(sessionId, anyFailed ? "partially_processed" : "processed");
+  await sessions.updateStatus(sessionId, anyFailed ? "partially_processed" : "processed");
 }
 
 export async function processSession(sessionId: string): Promise<void> {
-  const mats = materials.getBySession(sessionId) as Material[];
-  const allChapters = chapters.getAll() as Chapter[];
+  const mats = (await materials.getBySession(sessionId)) as Material[];
+  const allChapters = (await chapters.getAll()) as Chapter[];
   const existingTitles = allChapters.map((c) => c.title);
 
   for (const mat of mats) {
     await processMaterial(mat, sessionId, existingTitles);
   }
 
-  updateSessionStatus(sessionId);
+  await updateSessionStatus(sessionId);
 }
 
 export async function retryMaterial(sessionId: string, materialId: string): Promise<void> {
-  const mat = materials.getById(materialId) as Material | undefined;
+  const mat = (await materials.getById(materialId)) as Material | undefined;
   if (!mat) return;
 
-  const allChapters = chapters.getAll() as Chapter[];
+  const allChapters = (await chapters.getAll()) as Chapter[];
   const existingTitles = allChapters.map((c) => c.title);
 
   await processMaterial(mat, sessionId, existingTitles);
-  updateSessionStatus(sessionId);
+  await updateSessionStatus(sessionId);
 }

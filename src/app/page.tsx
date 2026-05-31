@@ -11,12 +11,12 @@ interface ChapterHealth {
   due_soon: number;
 }
 
-export default function Dashboard() {
-  const recentSessions = (sessionsDb.getAll() as Session[]).slice(0, 5);
-  const allChapters = chaptersDb.getAll() as Chapter[];
+export default async function Dashboard() {
+  const recentSessions = ((await sessionsDb.getAll()) as Session[]).slice(0, 5);
+  const allChapters = (await chaptersDb.getAll()) as Chapter[];
   const now = new Date().toISOString();
-  const dueCount = reviewSchedules.countDueNow(now);
-  const healthRows = reviewSchedules.getChapterHealth() as ChapterHealth[];
+  const dueCount = await reviewSchedules.countDueNow(now);
+  const healthRows = (await reviewSchedules.getChapterHealth()) as ChapterHealth[];
   const healthMap = Object.fromEntries(healthRows.map((r) => [r.id, r]));
 
   const inboxCount = recentSessions.filter((s) => s.status === "inbox").length;
@@ -24,7 +24,7 @@ export default function Dashboard() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
-      <p className="text-gray-600 mb-8">Your German learning at a glance</p>
+      <p className="text-slate-600 mb-8">Your German learning at a glance</p>
 
       <div className="grid grid-cols-4 gap-4 mb-10">
         <StatCard label="Chapters" value={allChapters.length} />
@@ -69,7 +69,7 @@ export default function Dashboard() {
                 <li key={s.id}>
                   <Link
                     href={`/sessions/${s.id}`}
-                    className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-blue-300 transition-colors"
+                    className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-3 hover:border-blue-300 transition-colors"
                   >
                     <span className="font-medium text-sm text-blue-900">
                       {s.lecture_number ? `Lecture ${s.lecture_number} — ` : ""}{s.date}
@@ -98,13 +98,13 @@ export default function Dashboard() {
                   <li key={c.id}>
                     <Link
                       href={`/book/${c.id}`}
-                      className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-blue-300 transition-colors"
+                      className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-3 hover:border-blue-300 transition-colors"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <HealthDot health={h} />
                         <span className="font-medium text-sm truncate text-blue-900">{c.title}</span>
                       </div>
-                      <span className="text-xs text-gray-600 shrink-0 ml-2">{c.level}</span>
+                      <span className="text-xs text-slate-500 shrink-0 ml-2">{c.level}</span>
                     </Link>
                   </li>
                 );
@@ -121,7 +121,7 @@ export default function Dashboard() {
         <Link href="/quiz" className="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
           Quiz
         </Link>
-        <Link href="/book" className="bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+        <Link href="/book" className="bg-white border border-slate-400 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
           Browse Book
         </Link>
       </div>
@@ -131,7 +131,7 @@ export default function Dashboard() {
 
 function HealthDot({ health }: { health: ChapterHealth | undefined }) {
   if (!health || health.total_exercises === 0) {
-    return <span className="w-2 h-2 rounded-full bg-gray-300 shrink-0" title="No exercises yet" />;
+    return <span className="w-2 h-2 rounded-full bg-slate-400 shrink-0" title="No exercises yet" />;
   }
   if (health.overdue > 0) {
     return <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" title="Overdue for review" />;
@@ -151,9 +151,9 @@ function StatCard({ label, value, accent = false, accentColor = "amber" }: {
   };
   const c = colors[accentColor];
   return (
-    <div className={`bg-white border rounded-lg px-5 py-4 ${accent ? c.border : "border-gray-200"}`}>
-      <div className={`text-2xl font-bold ${accent ? c.text : "text-gray-900"}`}>{value}</div>
-      <div className="text-sm text-gray-600 mt-1">{label}</div>
+    <div className={`bg-white border rounded-lg px-5 py-4 ${accent ? c.border : "border-slate-200"}`}>
+      <div className={`text-2xl font-bold ${accent ? c.text : "text-slate-900"}`}>{value}</div>
+      <div className="text-sm text-slate-600 mt-1">{label}</div>
     </div>
   );
 }
@@ -165,7 +165,7 @@ function StatusBadge({ status }: { status: string }) {
     partially_processed: "bg-orange-100 text-orange-700",
   };
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[status] ?? "bg-gray-100 text-gray-600"}`}>
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[status] ?? "bg-slate-100 text-slate-600"}`}>
       {status.replace(/_/g, " ")}
     </span>
   );
@@ -173,7 +173,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-dashed border-gray-300 rounded-lg px-4 py-6 text-sm text-gray-600 text-center">
+    <div className="bg-white border border-dashed border-slate-400 rounded-lg px-4 py-6 text-sm text-slate-600 text-center">
       {children}
     </div>
   );

@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ExercisePage({ params }: PageProps) {
   const { id, exerciseId } = await params;
-  const raw = exercisesDb.getById(exerciseId) as (Omit<Exercise, "items"> & { items: string }) | undefined;
+  const raw = (await exercisesDb.getById(exerciseId)) as (Omit<Exercise, "items"> & { items: string }) | undefined;
   if (!raw) notFound();
 
   const exercise: Exercise = {

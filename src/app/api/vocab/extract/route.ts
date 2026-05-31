@@ -37,12 +37,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "chapterId required" }, { status: 400 });
   }
 
-  const chapter = chapters.getById(chapterId) as { id: string; title: string; theory: string | null } | undefined;
+  const chapter = (await chapters.getById(chapterId)) as { id: string; title: string; theory: string | null } | undefined;
   if (!chapter) {
     return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
   }
 
-  const exs = exercises.getByChapter(chapterId) as RawExercise[];
+  const exs = (await exercises.getByChapter(chapterId)) as RawExercise[];
 
   if (!chapter.theory && exs.length === 0) {
     return NextResponse.json({ error: "Chapter has no theory or exercises to extract from" }, { status: 400 });
@@ -63,10 +63,10 @@ export async function POST(request: Request) {
     return true;
   });
 
-  vocabulary.deleteByChapter(chapterId);
+  await vocabulary.deleteByChapter(chapterId);
 
   for (const item of merged) {
-    vocabulary.create({
+    await vocabulary.create({
       id: randomUUID(),
       chapter_id: chapterId,
       word: item.word,

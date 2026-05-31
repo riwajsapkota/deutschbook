@@ -14,8 +14,26 @@ export function detectFileType(
   return "text"; // includes .txt, .md, .html, .htm
 }
 
+async function readFileBytes(filePath: string): Promise<Buffer> {
+  if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+    const res = await fetch(filePath);
+    return Buffer.from(await res.arrayBuffer());
+  }
+  return fs.readFileSync(filePath);
+}
+
+async function readFileText(filePath: string): Promise<string> {
+  if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+    const res = await fetch(filePath);
+    return res.text();
+  }
+  return fs.readFileSync(filePath, "utf-8");
+}
+
 export async function extractTextFromFile(filePath: string): Promise<string> {
-  const ext = path.extname(filePath).toLowerCase();
+  // For URL paths, derive extension from the URL pathname before the query string
+  const urlPath = filePath.startsWith("http") ? new URL(filePath).pathname : filePath;
+  const ext = path.extname(urlPath).toLowerCase();
 
   if (ext === ".pdf") {
     return extractFromPdf(filePath);
@@ -30,15 +48,15 @@ export async function extractTextFromFile(filePath: string): Promise<string> {
   }
 
   if (ext === ".csv") {
-    return fs.readFileSync(filePath, "utf-8");
+    return readFileText(filePath);
   }
 
   if ([".txt", ".md"].includes(ext)) {
-    return fs.readFileSync(filePath, "utf-8");
+    return readFileText(filePath);
   }
 
   if ([".html", ".htm"].includes(ext)) {
-    const html = fs.readFileSync(filePath, "utf-8");
+    const html = await readFileText(filePath);
     // Strip HTML tags and decode basic entities
     return html
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -64,7 +82,7 @@ export async function extractTextFromFile(filePath: string): Promise<string> {
 async function extractFromPdf(filePath: string): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const pdfParse = require("pdf-parse");
-  const buffer = fs.readFileSync(filePath);
+  const buffer = await readFileBytes(filePath);
   const data = await pdfParse(buffer);
   const text = data.text as string;
   if (text.trim()) return text;
@@ -75,7 +93,7 @@ async function extractFromPdf(filePath: string): Promise<string> {
 async function extractFromPdfViaVision(filePath: string): Promise<string> {
   if (process.env.MOCK_AI === "true") return "[Mock OCR text for scanned PDF]";
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const buffer = fs.readFileSync(filePath);
+  const buffer = await readFileBytes(filePath);
   const base64 = buffer.toString("base64");
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
@@ -100,13 +118,14 @@ async function extractFromPdfViaVision(filePath: string): Promise<string> {
 async function extractFromWord(filePath: string): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const mammoth = require("mammoth");
-  const result = await mammoth.extractRawText({ path: filePath });
+  const buffer = await readFileBytes(filePath);
+  const result = await mammoth.extractRawText({ buffer });
   return result.value as string;
 }
 
 async function extractFromExcel(filePath: string): Promise<string> {
   const XLSX = await import("xlsx");
-  const buffer = fs.readFileSync(filePath);
+  const buffer = await readFileBytes(filePath);
   const workbook = XLSX.read(buffer, { type: "buffer" });
   const lines: string[] = [];
 

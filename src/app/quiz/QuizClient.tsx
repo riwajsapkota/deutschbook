@@ -119,7 +119,7 @@ export default function QuizClient() {
   // ── Loading ──
   if (phase === "loading") {
     return (
-      <div className="max-w-2xl mx-auto px-6 py-16 text-center text-gray-600">
+      <div className="max-w-2xl mx-auto px-6 py-16 text-center text-slate-600">
         Loading due items...
       </div>
     );
@@ -130,21 +130,21 @@ export default function QuizClient() {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 text-center">
         <h1 className="text-2xl font-bold mb-2">Quiz</h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-slate-600 mb-8">
           {exercises.length} exercise{exercises.length !== 1 ? "s" : ""} due for review
         </p>
         <div className="mb-8 space-y-2">
           {exercises.slice(0, 5).map((ex) => (
-            <div key={ex.id} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm text-left">
+            <div key={ex.id} className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm text-left">
               <div>
                 <span className="font-medium text-blue-900">{ex.chapter_title}</span>
-                <span className="text-gray-600 ml-2 text-xs">{ex.instruction.slice(0, 50)}{ex.instruction.length > 50 ? "…" : ""}</span>
+                <span className="text-slate-600 ml-2 text-xs">{ex.instruction.slice(0, 50)}{ex.instruction.length > 50 ? "…" : ""}</span>
               </div>
-              <span className="text-xs text-gray-600 shrink-0 ml-2">{ex.items.length} items</span>
+              <span className="text-xs text-slate-600 shrink-0 ml-2">{ex.items.length} items</span>
             </div>
           ))}
           {exercises.length > 5 && (
-            <p className="text-xs text-gray-600">and {exercises.length - 5} more...</p>
+            <p className="text-xs text-slate-600">and {exercises.length - 5} more...</p>
           )}
         </div>
         <button
@@ -163,7 +163,7 @@ export default function QuizClient() {
       return (
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <h1 className="text-2xl font-bold mb-2">Nothing due</h1>
-          <p className="text-gray-600 mb-6">All caught up. Come back later when items are due for review.</p>
+          <p className="text-slate-600 mb-6">All caught up. Come back later when items are due for review.</p>
           <Link href="/" className="text-blue-600 hover:underline text-sm">Back to dashboard</Link>
         </div>
       );
@@ -184,13 +184,13 @@ export default function QuizClient() {
     return (
       <div className="max-w-2xl mx-auto px-6 py-10">
         <h1 className="text-2xl font-bold mb-1">Quiz complete</h1>
-        <p className="text-gray-600 mb-6">You reviewed {exercises.length} exercise{exercises.length !== 1 ? "s" : ""}.</p>
+        <p className="text-slate-600 mb-6">You reviewed {exercises.length} exercise{exercises.length !== 1 ? "s" : ""}.</p>
 
-        <div className="bg-white border border-gray-200 rounded-lg px-6 py-5 mb-6">
+        <div className="bg-white border border-slate-200 rounded-lg px-6 py-5 mb-6">
           <div className={`text-3xl font-bold mb-1 ${overallPct >= 70 ? "text-green-600" : "text-amber-600"}`}>
             {overallPct}%
           </div>
-          <p className="text-sm text-gray-700">{totalCorrect} of {totalItems} correct</p>
+          <p className="text-sm text-slate-700">{totalCorrect} of {totalItems} correct</p>
         </div>
 
         <h2 className="font-semibold mb-3">By chapter</h2>
@@ -198,7 +198,7 @@ export default function QuizClient() {
           {Object.entries(byChapter).map(([, v]) => {
             const pct = Math.round((v.correct / Math.max(v.total, 1)) * 100);
             return (
-              <div key={v.title} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 text-sm">
+              <div key={v.title} className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-3 text-sm">
                 <span className="font-medium text-blue-900">{v.title}</span>
                 <span className={`font-semibold ${pct >= 70 ? "text-green-600" : "text-amber-600"}`}>{pct}%</span>
               </div>
@@ -210,7 +210,7 @@ export default function QuizClient() {
           <button onClick={load} className="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
             Quiz again
           </button>
-          <Link href="/" className="bg-white border border-gray-300 text-gray-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+          <Link href="/" className="bg-white border border-slate-300 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
             Dashboard
           </Link>
         </div>
@@ -227,23 +227,23 @@ export default function QuizClient() {
     <div className="max-w-2xl mx-auto px-6 py-10">
       {/* Progress bar */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+        <div className="flex-1 bg-slate-200 rounded-full h-1.5">
           <div
             className="bg-blue-500 h-1.5 rounded-full transition-all"
             style={{ width: `${((index) / exercises.length) * 100}%` }}
           />
         </div>
-        <span className="text-xs text-gray-600 shrink-0">{index + 1} / {exercises.length}</span>
+        <span className="text-xs text-slate-600 shrink-0">{index + 1} / {exercises.length}</span>
       </div>
 
       {/* Chapter label */}
       <div className="flex items-center gap-2 mb-4">
         <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">{current.chapter_title}</span>
-        <span className="text-xs text-gray-600">{current.level}</span>
+        <span className="text-xs text-slate-600">{current.level}</span>
       </div>
 
       <h2 className="text-lg font-bold mb-1">{current.instruction}</h2>
-      <p className="text-xs text-gray-600 mb-6 capitalize">{current.type.replace(/_/g, " ")} · {current.difficulty}</p>
+      <p className="text-xs text-slate-600 mb-6 capitalize">{current.type.replace(/_/g, " ")} · {current.difficulty}</p>
 
       {/* Score banner */}
       {phase === "reviewing" && (
@@ -282,7 +282,7 @@ export default function QuizClient() {
 
       {phase === "reviewing" && (
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">How did that feel?</p>
+          <p className="text-sm font-medium text-slate-700 mb-2">How did that feel?</p>
           <div className="flex gap-2">
             {SELF_ASSESSMENTS.map((a) => (
               <button
@@ -296,7 +296,7 @@ export default function QuizClient() {
             ))}
           </div>
           {wrongCount > 0 && (
-            <p className="text-xs text-gray-600 mt-2">{wrongCount} wrong answer{wrongCount !== 1 ? "s" : ""}</p>
+            <p className="text-xs text-slate-600 mt-2">{wrongCount} wrong answer{wrongCount !== 1 ? "s" : ""}</p>
           )}
         </div>
       )}
@@ -317,12 +317,12 @@ function QuizItem({
 }) {
   const border = submitted
     ? correct ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"
-    : "border-gray-200 bg-white";
+    : "border-slate-200 bg-white";
 
   return (
     <div className={`border rounded-lg px-4 py-3 transition-colors ${border}`}>
       <div className="flex gap-2 items-start mb-2">
-        <span className="text-xs font-semibold text-gray-600 shrink-0 mt-0.5">{index}.</span>
+        <span className="text-xs font-semibold text-slate-600 shrink-0 mt-0.5">{index}.</span>
         <p className="text-sm text-blue-900 font-medium">{item.prompt}</p>
       </div>
 
@@ -331,7 +331,7 @@ function QuizItem({
           {item.options.map((opt) => (
             <label key={opt} className="flex items-center gap-2 cursor-pointer">
               <input type="radio" name={item.id} value={opt} checked={answer === opt} onChange={() => onChange(opt)} disabled={submitted} className="accent-blue-600" />
-              <span className={`text-sm ${submitted && opt === item.correct_answer ? "font-semibold text-green-700" : ""}`}>{opt}</span>
+              <span className={`text-sm ${submitted && opt === item.correct_answer ? "font-semibold text-green-700" : "text-slate-900"}`}>{opt}</span>
             </label>
           ))}
         </div>
@@ -342,7 +342,7 @@ function QuizItem({
           onChange={(e) => onChange(e.target.value)}
           disabled={submitted}
           placeholder="Your answer..."
-          className={`ml-4 w-[calc(100%-1rem)] border rounded px-3 py-3 text-base md:text-sm md:py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${submitted ? "bg-gray-50 cursor-not-allowed border-gray-200" : "bg-white border-gray-300"}`}
+          className={`ml-4 w-[calc(100%-1rem)] border rounded px-3 py-3 text-base md:text-sm md:py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 ${submitted ? "bg-slate-50 cursor-not-allowed border-slate-200" : "bg-white border-slate-300"}`}
         />
       )}
 
@@ -350,7 +350,7 @@ function QuizItem({
         <div className="mt-2 ml-4 text-sm">
           <span className="text-red-600">Correct: </span>
           <span className="font-medium">{item.correct_answer}</span>
-          {item.explanation && <p className="text-xs text-gray-700 mt-0.5">{item.explanation}</p>}
+          {item.explanation && <p className="text-xs text-slate-700 mt-0.5">{item.explanation}</p>}
         </div>
       )}
     </div>

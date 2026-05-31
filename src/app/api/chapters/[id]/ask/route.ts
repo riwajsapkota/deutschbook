@@ -8,7 +8,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const chapter = chapters.getById(id) as Chapter | undefined;
+  const chapter = (await chapters.getById(id)) as Chapter | undefined;
   if (!chapter) return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
 
   const body = await request.json();

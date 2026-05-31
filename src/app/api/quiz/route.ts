@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const chapterId = searchParams.get("chapter_id");
 
   const now = new Date().toISOString();
-  let due = reviewSchedules.getDueExercises(now) as DueExercise[];
+  let due = (await reviewSchedules.getDueExercises(now)) as DueExercise[];
 
   if (chapterId) {
     due = due.filter((e) => e.chapter_id === chapterId);

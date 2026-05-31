@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const session = sessions.getById(id);
+  const session = await sessions.getById(id);
   if (!session) return NextResponse.json({ error: "Session not found" }, { status: 404 });
 
   // Run async — return immediately, client can poll session status

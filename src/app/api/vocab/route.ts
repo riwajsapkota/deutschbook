@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   }
 
   const id = randomUUID();
-  vocabulary.create({
+  await vocabulary.create({
     id,
     chapter_id: chapter_id ?? null,
     word: word.trim(),
