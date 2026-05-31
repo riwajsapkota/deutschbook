@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { sessions } from "@/lib/db";
 import { retryMaterial } from "@/lib/process-session";
 
+export const maxDuration = 300;
+
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string; materialId: string }> }
